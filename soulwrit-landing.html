@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Soulwrit — Your Soul's Code, Written Daily</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --ink:#0B0912;
+    --deep:#141020;
+    --violet:#241B38;
+    --violet-light:#332648;
+    --gold:#D4AF6A;
+    --gold-light:#F3D9A4;
+    --gold-deep:#B8863E;
+    --cream:#EDE8DC;
+    --muted:#9C93B0;
+    --border:rgba(212,175,106,0.18);
+    --sage:#8FAE94;
+  }
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--ink);
+    color:var(--cream);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  .serif{font-family:'Fraunces',serif;}
+
+  /* THREAD LINE - signature element */
+  .thread{
+    position:absolute;
+    left:50%;
+    top:0;
+    width:1px;
+    height:100%;
+    background:linear-gradient(to bottom, transparent, var(--border) 8%, var(--border) 92%, transparent);
+    transform:translateX(-50%);
+    z-index:0;
+    pointer-events:none;
+  }
+  .thread-node{
+    position:absolute;
+    left:50%;
+    transform:translate(-50%,-50%);
+    width:8px;height:8px;
+    border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 12px rgba(212,175,106,0.7);
+    z-index:1;
+  }
+
+  /* NAV */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:22px 48px;
+    background:rgba(11,9,18,0.85);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-logo{
+    font-family:'Fraunces',serif;font-style:italic;font-size:21px;font-weight:500;
+    letter-spacing:0.03em;color:var(--gold-light);
+  }
+  .nav-cta{
+    background:linear-gradient(135deg,var(--gold-light),var(--gold-deep));
+    color:var(--ink);border:none;padding:11px 26px;border-radius:2px;
+    font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.04em;
+    cursor:pointer;transition:all 0.25s;text-decoration:none;text-transform:uppercase;
+  }
+  .nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(212,175,106,0.3);}
+
+  /* HERO */
+  .hero{
+    position:relative;min-height:100vh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;
+    padding:140px 24px 80px;overflow:hidden;
+  }
+  .hero-glow{
+    position:absolute;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 50% 25%, rgba(212,175,106,0.09) 0%, transparent 65%),
+               radial-gradient(ellipse 40% 40% at 15% 75%, rgba(143,174,148,0.05) 0%, transparent 60%);
+    pointer-events:none;
+  }
+  .stars{position:absolute;inset:0;pointer-events:none;}
+  .stars svg{width:100%;height:100%;opacity:0.5;}
+
+  .hero-eyebrow{
+    font-size:11px;font-weight:500;letter-spacing:0.3em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:28px;position:relative;
+  }
+  .hero h1{
+    font-family:'Fraunces',serif;font-weight:300;
+    font-size:clamp(44px,7vw,84px);line-height:1.08;letter-spacing:-0.01em;
+    color:var(--cream);margin-bottom:6px;position:relative;
+  }
+  .hero h1 em{font-style:italic;color:var(--gold-light);font-weight:400;}
+  .hero-sub{
+    font-size:clamp(15px,1.8vw,18px);font-weight:300;color:var(--muted);
+    max-width:480px;margin:26px auto 44px;position:relative;
+  }
+  .hero-actions{display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--gold-light),var(--gold-deep));
+    color:var(--ink);border:none;padding:16px 42px;border-radius:2px;
+    font-family:'Inter',sans-serif;font-size:14px;font-weight:600;letter-spacing:0.06em;
+    text-transform:uppercase;cursor:pointer;transition:all 0.25s;text-decoration:none;display:inline-block;
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(212,175,106,0.35);}
+  .hero-note{font-size:12.5px;color:var(--muted);letter-spacing:0.02em;}
+
+  /* PREVIEW CARD */
+  .preview-section{padding:20px 24px 110px;display:flex;justify-content:center;position:relative;}
+  .reading-card{
+    background:var(--deep);border:1px solid var(--border);border-radius:4px;
+    max-width:460px;width:100%;padding:0;overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    animation:float 7s ease-in-out infinite;
+  }
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+  .rc-header{padding:26px 32px 20px;border-bottom:1px solid var(--border);}
+  .rc-meta{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+  .rc-headline{font-family:'Fraunces',serif;font-style:italic;font-size:22px;font-weight:400;color:var(--cream);line-height:1.35;}
+  .rc-body{padding:26px 32px;}
+  .rc-label{font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .rc-text{font-size:14.5px;font-weight:300;color:var(--cream);opacity:0.85;line-height:1.8;margin-bottom:24px;}
+  .rc-num{display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--violet);border-radius:3px;margin-bottom:20px;}
+  .rc-num-badge{
+    width:42px;height:42px;border-radius:3px;flex-shrink:0;
+    background:linear-gradient(135deg,var(--gold-light),var(--gold-deep));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;font-size:20px;color:var(--ink);
+  }
+  .rc-num-text h4{font-size:12.5px;color:var(--gold-light);margin-bottom:4px;font-weight:500;}
+  .rc-num-text p{font-size:13px;color:var(--muted);line-height:1.6;}
+  .rc-journal{padding:16px;background:rgba(143,174,148,0.08);border-left:2px solid var(--sage);border-radius:0 3px 3px 0;}
+  .rc-journal span{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--sage);display:block;margin-bottom:6px;}
+  .rc-journal p{font-family:'Fraunces',serif;font-style:italic;font-size:16px;color:var(--cream);opacity:0.9;}
+
+  /* SECTIONS */
+  .section{padding:110px 24px;position:relative;}
+  .section-inner{max-width:1020px;margin:0 auto;position:relative;}
+  .section-eyebrow{
+    font-size:10.5px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:18px;text-align:center;
+  }
+  .section-title{
+    font-family:'Fraunces',serif;font-weight:300;font-size:clamp(32px,4.5vw,50px);
+    text-align:center;line-height:1.15;margin-bottom:70px;color:var(--cream);
+  }
+  .section-title em{font-style:italic;color:var(--gold-light);}
+
+  /* MOON PHASE STEPS */
+  .phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+  .phase{background:var(--deep);padding:40px 28px;text-align:center;}
+  .phase-icon{font-size:30px;margin-bottom:20px;filter:grayscale(0) sepia(0.3);}
+  .phase-tag{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+  .phase h3{font-family:'Fraunces',serif;font-size:20px;font-weight:400;margin-bottom:10px;color:var(--cream);}
+  .phase p{font-size:13.5px;color:var(--muted);line-height:1.7;font-weight:300;}
+
+  /* FEATURES */
+  .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);}
+  .feature{background:var(--ink);padding:34px 30px;}
+  .feature-icon{font-size:22px;margin-bottom:16px;display:block;color:var(--gold);}
+  .feature h3{font-family:'Fraunces',serif;font-size:19px;font-weight:400;margin-bottom:8px;color:var(--cream);}
+  .feature p{font-size:13.5px;color:var(--muted);line-height:1.7;font-weight:300;}
+
+  /* PRICING */
+  .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:1000px;margin:0 auto;}
+  .pricing-card{border-radius:4px;padding:38px 30px;border:1px solid var(--border);background:var(--deep);text-align:center;transition:transform 0.25s;}
+  .pricing-card:hover{transform:translateY(-4px);}
+  .pricing-card.featured{background:var(--violet);border-color:var(--gold);position:relative;}
+  .pricing-card.premium{background:var(--ink);border-color:var(--gold-deep);}
+  .pricing-badge{display:inline-block;background:linear-gradient(135deg,var(--gold-light),var(--gold-deep));color:var(--ink);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:5px 14px;border-radius:2px;margin-bottom:22px;}
+  .pricing-name{font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:14px;color:var(--muted);}
+  .pricing-price{font-family:'Fraunces',serif;font-size:52px;font-weight:300;line-height:1;margin-bottom:6px;color:var(--gold-light);}
+  .pricing-price sup{font-size:20px;vertical-align:top;margin-top:8px;display:inline-block;}
+  .pricing-period{font-size:12.5px;color:var(--muted);margin-bottom:30px;}
+  .pricing-features{list-style:none;text-align:left;margin-bottom:30px;}
+  .pricing-features li{font-size:13.5px;font-weight:300;padding:9px 0;border-bottom:1px solid var(--border);color:var(--cream);opacity:0.85;display:flex;align-items:center;gap:10px;}
+  .pricing-features li::before{content:'✦';font-size:9px;color:var(--gold);flex-shrink:0;}
+  .btn-pricing{width:100%;padding:13px;border-radius:2px;border:1px solid var(--gold);background:transparent;color:var(--gold-light);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 0.25s;}
+  .btn-pricing:hover{background:var(--gold);color:var(--ink);}
+
+  /* TESTIMONIALS */
+  .testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);}
+  .testimonial{background:var(--deep);padding:32px 28px;}
+  .t-stars{color:var(--gold);font-size:13px;margin-bottom:16px;letter-spacing:2px;}
+  .t-text{font-family:'Fraunces',serif;font-style:italic;font-size:17px;color:var(--cream);opacity:0.9;line-height:1.55;margin-bottom:18px;}
+  .t-author{font-size:12.5px;font-weight:600;color:var(--gold-light);}
+  .t-author span{display:block;font-size:11.5px;font-weight:300;color:var(--muted);margin-top:2px;}
+
+  /* CTA */
+  .cta-section{padding:130px 24px;text-align:center;position:relative;overflow:hidden;}
+  .cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 50%, rgba(212,175,106,0.1) 0%, transparent 70%);}
+  .cta-section h2{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(36px,5.5vw,64px);color:var(--cream);line-height:1.15;margin-bottom:20px;position:relative;}
+  .cta-section h2 em{font-style:italic;color:var(--gold-light);}
+  .cta-section p{font-size:16px;font-weight:300;color:var(--muted);margin-bottom:44px;position:relative;}
+
+  /* FOOTER */
+  footer{padding:44px 48px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);}
+  .footer-logo{font-family:'Fraunces',serif;font-style:italic;font-size:17px;color:var(--gold-light);}
+  .footer-links{display:flex;gap:26px;}
+  .footer-links a{font-size:12.5px;color:var(--muted);text-decoration:none;transition:color 0.2s;}
+  .footer-links a:hover{color:var(--gold-light);}
+
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(11,9,18,0.88);backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity 0.3s;}
+  .modal-overlay.open{opacity:1;pointer-events:all;}
+  .modal{background:var(--deep);border:1px solid var(--border);border-radius:4px;padding:46px 40px;max-width:440px;width:100%;position:relative;transform:translateY(16px);transition:transform 0.3s;}
+  .modal-overlay.open .modal{transform:translateY(0);}
+  .modal-close{position:absolute;top:20px;right:20px;background:var(--violet);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;color:var(--gold-light);display:flex;align-items:center;justify-content:center;}
+  .modal h2{font-family:'Fraunces',serif;font-weight:400;font-size:28px;margin-bottom:8px;color:var(--cream);}
+  .modal p{font-size:13.5px;font-weight:300;color:var(--muted);margin-bottom:30px;}
+  .form-group{margin-bottom:16px;}
+  .form-group label{display:block;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .form-group input{width:100%;padding:13px 15px;border:1px solid var(--border);border-radius:2px;font-family:'Inter',sans-serif;font-size:14.5px;color:var(--cream);background:var(--ink);outline:none;transition:border-color 0.2s;}
+  .form-group input:focus{border-color:var(--gold);}
+  .plan-toggle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:24px;}
+  .plan-option{border:1px solid var(--border);border-radius:2px;padding:12px;cursor:pointer;text-align:center;transition:all 0.2s;}
+  .plan-option.selected{border-color:var(--gold);background:var(--violet);}
+  .plan-option .plan-price{font-family:'Fraunces',serif;font-size:20px;color:var(--gold-light);}
+  .plan-option .plan-label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;}
+  .btn-submit{width:100%;padding:15px;background:linear-gradient(135deg,var(--gold-light),var(--gold-deep));color:var(--ink);border:none;border-radius:2px;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;margin-top:8px;}
+  .btn-submit:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(212,175,106,0.3);}
+  .modal-fine{font-size:11.5px;color:var(--muted);text-align:center;margin-top:12px;}
+
+  @media (max-width:768px){
+    nav{padding:16px 20px;}
+    .section{padding:76px 20px;}
+    footer{flex-direction:column;gap:16px;text-align:center;}
+    .modal{padding:36px 24px;}
+    .thread{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="thread"></div>
+
+<nav>
+  <div class="nav-logo">Soulwrit</div>
+  <a class="nav-cta" href="#" onclick="openModal();return false;">Begin</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="stars">
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+      <circle cx="140" cy="160" r="1.6" fill="#D4AF6A"/>
+      <circle cx="300" cy="90" r="1.2" fill="#D4AF6A"/>
+      <circle cx="1180" cy="140" r="1.8" fill="#D4AF6A"/>
+      <circle cx="1300" cy="240" r="1.2" fill="#D4AF6A"/>
+      <circle cx="90" cy="420" r="1.4" fill="#D4AF6A"/>
+      <circle cx="1360" cy="460" r="1.6" fill="#D4AF6A"/>
+      <circle cx="220" cy="700" r="1.2" fill="#D4AF6A"/>
+      <circle cx="1250" cy="680" r="1.4" fill="#D4AF6A"/>
+      <circle cx="620" cy="80" r="1.3" fill="#D4AF6A"/>
+      <circle cx="780" cy="760" r="1.3" fill="#D4AF6A"/>
+      <circle cx="60" cy="600" r="1" fill="#D4AF6A"/>
+      <circle cx="1400" cy="600" r="1" fill="#D4AF6A"/>
+    </svg>
+  </div>
+
+  <p class="hero-eyebrow">Astrology · Numerology · Journal</p>
+  <h1>Every soul<br/><em>carries a code.</em></h1>
+  <p class="hero-sub">A daily reading — your stars, your numbers, one question worth sitting with — delivered before the day asks anything of you.</p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="#" onclick="openModal();return false;">Start your 7-day trial</a>
+    <p class="hero-note">Then from $4.99/mo · cancel any time</p>
+  </div>
+</section>
+
+<section class="preview-section">
+  <div class="reading-card">
+    <div class="rc-header">
+      <p class="rc-meta">Scorpio · Life Path 7 · Personal Day 3</p>
+      <p class="rc-headline">The truth you've been circling finally comes into focus.</p>
+    </div>
+    <div class="rc-body">
+      <p class="rc-label">Horoscope</p>
+      <p class="rc-text">Mercury's trine to your natal Pluto opens a channel between what you know and what you've been afraid to say. Trust the conversation you've been postponing.</p>
+      <div class="rc-num">
+        <div class="rc-num-badge">3</div>
+        <div class="rc-num-text">
+          <h4>Personal Day 3 — Expression</h4>
+          <p>Ideas that have been forming quietly are ready to be spoken.</p>
+        </div>
+      </div>
+      <div class="rc-journal">
+        <span>Journal prompt</span>
+        <p>What would I say if I knew it would be received well?</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="position:relative;">
+  <div class="thread-node"></div>
+  <div class="section-inner">
+    <p class="section-eyebrow">How it unfolds</p>
+    <h2 class="section-title">Three phases,<br/><em>one thread.</em></h2>
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-icon">🌑</div>
+        <p class="phase-tag">New Moon · Begin</p>
+        <h3>Tell us who you are</h3>
+        <p>Name, date of birth, email. We calculate your sign and life path number instantly.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-icon">🌓</div>
+        <p class="phase-tag">Waxing · Receive</p>
+        <h3>Wake up to your reading</h3>
+        <p>Every morning, a reading arrives — your horoscope, your numerology, one question to hold onto.</p>
+      </div>
+      <div class="phase">
+        <div class="phase-icon">🌕</div>
+        <p class="phase-tag">Full Moon · Reflect</p>
+        <h3>Write it down</h3>
+        <p>Journal your answer in the portal. Watch the pattern of your own thinking take shape over time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="position:relative;">
+  <div class="thread-node"></div>
+  <div class="section-inner">
+    <p class="section-eyebrow">What's included</p>
+    <h2 class="section-title">Everything written for you.<br/><em>Nothing generic.</em></h2>
+    <div class="features-grid">
+      <div class="feature">
+        <span class="feature-icon">☾</span>
+        <h3>Daily Horoscope</h3>
+        <p>Personalized to your sun sign and the day's transits — not a recycled paragraph shared with a million others.</p>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">✦</span>
+        <h3>Numerology Reading</h3>
+        <p>Your life path number and personal day number, read together — a layer most apps skip entirely.</p>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">✎</span>
+        <h3>Journal Prompt</h3>
+        <p>One real question, not a scroll-past. Every entry is saved and searchable in your portal.</p>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">✉</span>
+        <h3>Inbox Delivery</h3>
+        <p>No app to open. Your reading arrives by 7am your time, ready before your day starts.</p>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">◐</span>
+        <h3>Moon Overview</h3>
+        <p>On every new and full moon, a deeper look at what's shifting and what it asks of you.</p>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">⟡</span>
+        <h3>Reading Archive</h3>
+        <p>Every reading saved. Look back weeks later and see how it actually landed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="position:relative;">
+  <div class="thread-node"></div>
+  <div class="section-inner">
+    <p class="section-eyebrow">Pricing</p>
+    <h2 class="section-title">Simple, honest pricing.</h2>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <p class="pricing-name">Monthly</p>
+        <p class="pricing-price"><sup>$</sup>4.99</p>
+        <p class="pricing-period">per month</p>
+        <ul class="pricing-features">
+          <li>Daily horoscope + numerology</li>
+          <li>Daily journal prompt</li>
+          <li>Reading archive</li>
+          <li>Moon overview</li>
+        </ul>
+        <button class="btn-pricing" onclick="openModal('monthly')">Start trial</button>
+      </div>
+      <div class="pricing-card featured">
+        <p class="pricing-badge">Best value</p>
+        <p class="pricing-name">Annual</p>
+        <p class="pricing-price"><sup>$</sup>39</p>
+        <p class="pricing-period">per year — save 35%</p>
+        <ul class="pricing-features">
+          <li>Everything in Monthly</li>
+          <li>Priority support</li>
+          <li>Early access to new features</li>
+          <li>Full year overview</li>
+        </ul>
+        <button class="btn-pricing" onclick="openModal('annual')">Start trial</button>
+      </div>
+      <div class="pricing-card premium">
+        <p class="pricing-badge">Premium</p>
+        <p class="pricing-name">Premium</p>
+        <p class="pricing-price"><sup>$</sup>9.99</p>
+        <p class="pricing-period">per month</p>
+        <ul class="pricing-features">
+          <li>Everything in Monthly</li>
+          <li>Full birth chart reading</li>
+          <li>Weekly deep-dive reading</li>
+          <li>Compatibility readings</li>
+        </ul>
+        <button class="btn-pricing" onclick="openModal('premium')">Start trial</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="position:relative;">
+  <div class="thread-node"></div>
+  <div class="section-inner">
+    <p class="section-eyebrow">From the community</p>
+    <h2 class="section-title">What people are saying.</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial">
+        <p class="t-stars">★★★★★</p>
+        <p class="t-text">"The numerology layer is something I've never seen combined this way. I actually look forward to mornings now."</p>
+        <p class="t-author">Maya R. <span>Virgo · Life Path 3</span></p>
+      </div>
+      <div class="testimonial">
+        <p class="t-stars">★★★★★</p>
+        <p class="t-text">"I was skeptical. The reading on my biggest work day was so accurate I showed a coworker. She signed up that day."</p>
+        <p class="t-author">Jordan T. <span>Sagittarius · Life Path 9</span></p>
+      </div>
+      <div class="testimonial">
+        <p class="t-stars">★★★★★</p>
+        <p class="t-text">"The journal prompts alone are worth it. I've filled more pages in two months than the last two years."</p>
+        <p class="t-author">Priya S. <span>Libra · Life Path 11</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <h2>Your soul already<br/><em>knows the way.</em></h2>
+  <p>7 days free. No card required to start.</p>
+  <a class="btn-primary" href="#" onclick="openModal();return false;">Begin your reading</a>
+</section>
+
+<footer>
+  <div class="footer-logo">Soulwrit</div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Support</a>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>Begin your reading</h2>
+    <p>7 days free — your first reading arrives tomorrow morning.</p>
+    <div class="form-group"><label>Your name</label><input type="text" placeholder="First name" id="nameInput"/></div>
+    <div class="form-group"><label>Date of birth</label><input type="date" id="dobInput"/></div>
+    <div class="form-group"><label>Email address</label><input type="email" placeholder="you@email.com" id="emailInput"/></div>
+    <p style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Choose your plan</p>
+    <div class="plan-toggle">
+      <div class="plan-option" id="planMonthly" onclick="selectPlan('monthly')"><div class="plan-price">$4.99</div><div class="plan-label">Monthly</div></div>
+      <div class="plan-option selected" id="planAnnual" onclick="selectPlan('annual')"><div class="plan-price">$39</div><div class="plan-label">Annual</div></div>
+      <div class="plan-option" id="planPremium" onclick="selectPlan('premium')"><div class="plan-price">$9.99</div><div class="plan-label">Premium</div></div>
+    </div>
+    <button class="btn-submit" onclick="handleSignup()">Start my free trial →</button>
+    <p class="modal-fine">No card required for your 7-day trial.</p>
+  </div>
+</div>
+
+<script>
+function openModal(plan){document.getElementById('modalOverlay').classList.add('open');if(plan)selectPlan(plan);}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+function handleOverlayClick(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+function selectPlan(plan){
+  document.getElementById('planMonthly').classList.toggle('selected',plan==='monthly');
+  document.getElementById('planAnnual').classList.toggle('selected',plan==='annual');
+  document.getElementById('planPremium').classList.toggle('selected',plan==='premium');
+}
+function getZodiacSign(dob){
+  const d=new Date(dob),m=d.getUTCMonth()+1,day=d.getUTCDate();
+  if((m===3&&day>=21)||(m===4&&day<=19))return '♈ Aries';
+  if((m===4&&day>=20)||(m===5&&day<=20))return '♉ Taurus';
+  if((m===5&&day>=21)||(m===6&&day<=20))return '♊ Gemini';
+  if((m===6&&day>=21)||(m===7&&day<=22))return '♋ Cancer';
+  if((m===7&&day>=23)||(m===8&&day<=22))return '♌ Leo';
+  if((m===8&&day>=23)||(m===9&&day<=22))return '♍ Virgo';
+  if((m===9&&day>=23)||(m===10&&day<=22))return '♎ Libra';
+  if((m===10&&day>=23)||(m===11&&day<=21))return '♏ Scorpio';
+  if((m===11&&day>=22)||(m===12&&day<=21))return '♐ Sagittarius';
+  if((m===12&&day>=22)||(m===1&&day<=19))return '♑ Capricorn';
+  if((m===1&&day>=20)||(m===2&&day<=18))return '♒ Aquarius';
+  return '♓ Pisces';
+}
+function getLifePathNumber(dob){
+  const digits=dob.replace(/-/g,'').split('').map(Number);
+  let sum=digits.reduce((a,b)=>a+b,0);
+  while(sum>9&&sum!==11&&sum!==22&&sum!==33){sum=sum.toString().split('').map(Number).reduce((a,b)=>a+b,0);}
+  return sum;
+}
+function handleSignup(){
+  const name=document.getElementById('nameInput').value.trim();
+  const dob=document.getElementById('dobInput').value;
+  const email=document.getElementById('emailInput').value.trim();
+  if(!name||!dob||!email){alert('Please fill in all fields to continue.');return;}
+  const sign=getZodiacSign(dob),lifePath=getLifePathNumber(dob);
+  document.querySelector('.modal').innerHTML=`
+    <div style="text-align:center;padding:16px 0;">
+      <div style="font-size:36px;margin-bottom:16px;color:var(--gold);">✦</div>
+      <h2 style="margin-bottom:12px;">Welcome, ${name}.</h2>
+      <p style="font-size:14.5px;color:var(--muted);margin-bottom:24px;">You're a <strong style="color:var(--gold-light)">${sign}</strong> with a Life Path of <strong style="color:var(--gold-light)">${lifePath}</strong>.</p>
+      <div style="background:var(--violet);border-radius:3px;padding:20px;margin-bottom:24px;text-align:left;">
+        <p style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Your first reading</p>
+        <p class="serif" style="font-style:italic;font-size:18px;color:var(--cream);">Arrives in your inbox tomorrow morning.</p>
+      </div>
+      <button onclick="closeModal()" style="padding:12px 32px;background:linear-gradient(135deg,var(--gold-light),var(--gold-deep));color:var(--ink);border:none;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">Close</button>
+    </div>`;
+}
+document.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeModal();});
+</script>
+</body>
+</html>
