@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Soulwrit — My Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0B0912;--deep:#141020;--violet:#241B38;--violet-light:#332648;
+  --gold:#D4AF6A;--gold-light:#F3D9A4;--gold-deep:#B8863E;
+  --cream:#EDE8DC;--muted:#9C93B0;--border:rgba(212,175,106,0.18);--sage:#8FAE94;
+}
+body{font-family:'Inter',sans-serif;background:var(--ink);color:var(--cream);min-height:100vh;}
+
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh;}
+
+.sidebar{background:var(--deep);border-right:1px solid var(--border);padding:28px 20px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sidebar-logo{font-family:'Fraunces',serif;font-style:italic;font-size:20px;font-weight:400;color:var(--gold-light);letter-spacing:0.02em;margin-bottom:32px;padding-left:8px;}
+
+.user-card{background:var(--violet);border:1px solid var(--border);border-radius:4px;padding:14px;margin-bottom:28px;}
+.user-avatar{width:36px;height:36px;border-radius:2px;background:linear-gradient(135deg,var(--gold-light),var(--gold-deep));display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:16px;color:var(--ink);margin-bottom:8px;}
+.user-name{font-size:14px;font-weight:500;color:var(--cream);}
+.user-sign{font-size:12px;color:var(--muted);font-weight:300;}
+.user-plan{display:inline-block;margin-top:6px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;border-radius:2px;background:linear-gradient(135deg,var(--gold-light),var(--gold-deep));color:var(--ink);}
+
+.nav-section-label{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);padding:0 8px;margin-bottom:8px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:2px;font-size:14px;font-weight:400;color:var(--muted);cursor:pointer;transition:all 0.15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;}
+.nav-item:hover{background:var(--violet-light);color:var(--cream);}
+.nav-item.active{background:var(--violet);color:var(--gold-light);font-weight:500;}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-bottom{margin-top:auto;padding-top:20px;border-top:1px solid var(--border);}
+
+.main{padding:36px 40px;overflow-y:auto;}
+.page{display:none;}
+.page.active{display:block;}
+
+.page-header{margin-bottom:28px;}
+.page-header h1{font-family:'Fraunces',serif;font-weight:300;font-style:italic;font-size:30px;color:var(--gold-light);margin-bottom:4px;}
+.page-header p{font-size:13.5px;color:var(--muted);font-weight:300;}
+
+.today-card{background:var(--deep);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:24px;}
+.today-header{background:linear-gradient(135deg,var(--violet),var(--violet-light));padding:24px 28px;border-bottom:1px solid var(--border);}
+.today-meta{font-size:11.5px;color:var(--gold);margin-bottom:10px;letter-spacing:0.04em;}
+.today-headline{font-family:'Fraunces',serif;font-size:21px;font-weight:400;font-style:italic;line-height:1.3;color:var(--cream);}
+.today-body{padding:24px 28px;}
+.reading-section{margin-bottom:20px;}
+.section-label{font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.reading-text{font-size:14px;font-weight:300;color:var(--cream);opacity:0.85;line-height:1.8;}
+
+.num-row{display:flex;gap:14px;align-items:flex-start;padding:16px;background:var(--violet);border-radius:2px;}
+.num-badge{width:44px;height:44px;border-radius:2px;background:linear-gradient(135deg,var(--gold-light),var(--gold-deep));display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:22px;color:var(--ink);flex-shrink:0;}
+.num-text h4{font-size:13px;font-weight:500;color:var(--gold-light);margin-bottom:4px;}
+.num-text p{font-size:13px;font-weight:300;color:var(--muted);line-height:1.6;}
+
+.journal-prompt-box{background:rgba(143,174,148,0.08);border-left:2px solid var(--sage);border-radius:0 2px 2px 0;padding:18px 20px;margin-bottom:16px;}
+.j-label{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--sage);margin-bottom:6px;}
+.journal-prompt-box p{font-family:'Fraunces',serif;font-size:18px;font-style:italic;color:var(--cream);line-height:1.4;}
+
+.journal-textarea{width:100%;min-height:140px;padding:16px;border:1px solid var(--border);border-radius:2px;font-family:'Inter',sans-serif;font-size:14px;font-weight:300;color:var(--cream);background:var(--ink);resize:vertical;outline:none;transition:border-color 0.2s;line-height:1.7;}
+.journal-textarea:focus{border-color:var(--gold);}
+.journal-textarea::placeholder{color:var(--muted);}
+
+.btn-save{padding:10px 24px;background:var(--sage);color:var(--ink);border:none;border-radius:2px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:10px;}
+.btn-save:hover{opacity:0.85;}
+.saved-msg{font-size:12px;color:var(--sage);margin-top:8px;display:none;}
+.saved-msg.visible{display:block;}
+
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px;}
+.stat-card{background:var(--deep);border:1px solid var(--border);border-radius:4px;padding:20px;text-align:center;}
+.stat-number{font-family:'Fraunces',serif;font-size:34px;font-weight:300;color:var(--gold-light);line-height:1;margin-bottom:4px;}
+.stat-label{font-size:12px;color:var(--muted);font-weight:300;}
+
+.archive-list{display:flex;flex-direction:column;gap:12px;}
+.archive-item{background:var(--deep);border:1px solid var(--border);border-radius:2px;padding:18px 20px;cursor:pointer;transition:all 0.15s;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.archive-item:hover{border-color:var(--gold);transform:translateX(2px);}
+.archive-date{font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;}
+.archive-headline{font-family:'Fraunces',serif;font-size:17px;font-weight:400;color:var(--cream);line-height:1.3;}
+.archive-tags{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
+.archive-tag{font-size:11px;padding:2px 8px;border-radius:2px;background:var(--violet);color:var(--gold-light);font-weight:500;}
+.archive-journal-indicator{font-size:11px;color:var(--sage);font-weight:500;flex-shrink:0;margin-top:2px;}
+
+.account-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.account-card{background:var(--deep);border:1px solid var(--border);border-radius:4px;padding:24px;}
+.account-card h3{font-size:14px;font-weight:500;color:var(--gold-light);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.account-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
+.account-row:last-child{border-bottom:none;}
+.account-row-label{font-size:13px;color:var(--muted);font-weight:300;}
+.account-row-value{font-size:13px;color:var(--cream);font-weight:500;}
+.btn-manage{margin-top:16px;width:100%;padding:10px;border:1px solid var(--border);border-radius:2px;background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;}
+.btn-manage:hover{border-color:var(--gold);color:var(--gold-light);}
+.plan-upgrade{background:linear-gradient(135deg,var(--gold-light),var(--gold-deep));color:var(--ink);border:none;font-weight:700;}
+.plan-upgrade:hover{opacity:0.9;}
+
+.support-note{font-size:12.5px;color:var(--muted);margin-top:16px;text-align:center;}
+.support-note a{color:var(--gold-light);text-decoration:none;}
+.support-note a:hover{text-decoration:underline;}
+
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--deep);border-top:1px solid var(--border);padding:8px 0 20px;z-index:100;}
+.mobile-nav-inner{display:flex;justify-content:space-around;}
+.mobile-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 16px;border-radius:2px;cursor:pointer;border:none;background:none;transition:all 0.15s;}
+.mobile-nav-item .icon{font-size:20px;}
+.mobile-nav-item .label{font-size:10px;color:var(--muted);font-weight:500;}
+.mobile-nav-item.active .label{color:var(--gold-light);}
+
+@media (max-width:768px){
+  .app{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .main{padding:20px 16px 80px;}
+  .stats-row{grid-template-columns:repeat(3,1fr);gap:10px;}
+  .account-grid{grid-template-columns:1fr;}
+  .mobile-nav{display:block;}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo">Soulwrit</div>
+    <div class="user-card">
+      <div class="user-avatar" id="sidebarAvatar">M</div>
+      <div class="user-name" id="sidebarName">Maya</div>
+      <div class="user-sign" id="sidebarSign">♍ Virgo · Life Path 5</div>
+      <span class="user-plan" id="sidebarPlan">Monthly</span>
+    </div>
+    <p class="nav-section-label" style="margin-bottom:8px;">My Space</p>
+    <button class="nav-item active" onclick="showPage('today')" id="nav-today"><span class="nav-icon">✦</span> Today's Reading</button>
+    <button class="nav-item" onclick="showPage('journal')" id="nav-journal"><span class="nav-icon">✎</span> Journal</button>
+    <button class="nav-item" onclick="showPage('archive')" id="nav-archive"><span class="nav-icon">◐</span> Archive</button>
+    <div class="sidebar-bottom">
+      <button class="nav-item" onclick="showPage('account')" id="nav-account"><span class="nav-icon">⚙</span> Account</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="page active" id="page-today">
+      <div class="page-header">
+        <h1 id="todayGreeting">Good morning, Maya.</h1>
+        <p id="todayDate">Your reading for today</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-number">12</div><div class="stat-label">Day streak</div></div>
+        <div class="stat-card"><div class="stat-number">47</div><div class="stat-label">Readings read</div></div>
+        <div class="stat-card"><div class="stat-number">31</div><div class="stat-label">Journal entries</div></div>
+      </div>
+
+      <div class="today-card">
+        <div class="today-header">
+          <div class="today-meta" id="todayMeta">♍ Virgo · Life Path 5 · Personal Day 3 · 🌔 Waxing Gibbous</div>
+          <div class="today-headline" id="todayHeadline">Loading your reading...</div>
+        </div>
+        <div class="today-body" id="todayBody">
+          <div style="text-align:center;padding:32px;color:var(--muted);">
+            <div style="font-size:28px;margin-bottom:12px;color:var(--gold);">✦</div>
+            <p style="font-size:14px;">Generating your personalized reading...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="today-card">
+        <div style="padding:20px 28px;">
+          <div class="section-label">Today's Journal</div>
+          <div class="journal-prompt-box" id="todayPrompt"><div class="j-label">Reflect on this</div><p>Loading your prompt...</p></div>
+          <textarea class="journal-textarea" id="todayJournal" placeholder="Write your thoughts here..."></textarea>
+          <button class="btn-save" onclick="saveJournal()">Save entry</button>
+          <p class="saved-msg" id="savedMsg">✓ Saved to your journal</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-journal">
+      <div class="page-header"><h1>Journal</h1><p>Your reflections over time</p></div>
+      <div id="journalEntries" style="display:flex;flex-direction:column;gap:16px;"></div>
+    </div>
+
+    <div class="page" id="page-archive">
+      <div class="page-header"><h1>Reading Archive</h1><p>Every reading, saved and searchable</p></div>
+      <div class="archive-list" id="archiveList"></div>
+    </div>
+
+    <div class="page" id="page-account">
+      <div class="page-header"><h1>Account</h1><p>Manage your subscription and preferences</p></div>
+      <div class="account-grid">
+        <div class="account-card">
+          <h3>Profile</h3>
+          <div class="account-row"><span class="account-row-label">Name</span><span class="account-row-value" id="acctName">Maya</span></div>
+          <div class="account-row"><span class="account-row-label">Email</span><span class="account-row-value">maya@email.com</span></div>
+          <div class="account-row"><span class="account-row-label">Date of birth</span><span class="account-row-value">Sep 14, 1992</span></div>
+          <div class="account-row"><span class="account-row-label">Sun sign</span><span class="account-row-value">♍ Virgo</span></div>
+          <div class="account-row"><span class="account-row-label">Life path</span><span class="account-row-value">5</span></div>
+          <button class="btn-manage">Edit profile</button>
+        </div>
+
+        <div class="account-card">
+          <h3>Subscription</h3>
+          <div class="account-row"><span class="account-row-label">Plan</span><span class="account-row-value" id="acctPlan">Monthly</span></div>
+          <div class="account-row"><span class="account-row-label">Price</span><span class="account-row-value">$4.99 / month</span></div>
+          <div class="account-row"><span class="account-row-label">Next billing</span><span class="account-row-value">Jul 23, 2026</span></div>
+          <div class="account-row"><span class="account-row-label">Status</span><span class="account-row-value" style="color:var(--sage)">Active ✓</span></div>
+          <button class="btn-manage plan-upgrade">Upgrade to Premium</button>
+          <button class="btn-manage" style="margin-top:8px;">Manage billing</button>
+        </div>
+
+        <div class="account-card">
+          <h3>Delivery preferences</h3>
+          <div class="account-row"><span class="account-row-label">Delivery time</span><span class="account-row-value">7:00 AM</span></div>
+          <div class="account-row"><span class="account-row-label">Timezone</span><span class="account-row-value">Mountain Time</span></div>
+          <div class="account-row"><span class="account-row-label">Format</span><span class="account-row-value">Email + Portal</span></div>
+          <button class="btn-manage">Update preferences</button>
+        </div>
+
+        <div class="account-card">
+          <h3>Your numbers</h3>
+          <div class="account-row"><span class="account-row-label">Life path</span><span class="account-row-value">5 — The Freedom Seeker</span></div>
+          <div class="account-row"><span class="account-row-label">Expression</span><span class="account-row-value">7 — The Seeker</span></div>
+          <div class="account-row"><span class="account-row-label">Soul urge</span><span class="account-row-value">3 — The Creator</span></div>
+          <div class="account-row"><span class="account-row-label">Birthday</span><span class="account-row-value">5 — The Adapter</span></div>
+          <button class="btn-manage">View full chart</button>
+        </div>
+      </div>
+      <p class="support-note">Need help? Email <a href="mailto:support@soulwrit.ca">support@soulwrit.ca</a> — we read every one.</p>
+    </div>
+
+  </main>
+</div>
+
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <button class="mobile-nav-item active" onclick="showPage('today')" id="mnav-today"><span class="icon">✦</span><span class="label">Today</span></button>
+    <button class="mobile-nav-item" onclick="showPage('journal')" id="mnav-journal"><span class="icon">✎</span><span class="label">Journal</span></button>
+    <button class="mobile-nav-item" onclick="showPage('archive')" id="mnav-archive"><span class="icon">◐</span><span class="label">Archive</span></button>
+    <button class="mobile-nav-item" onclick="showPage('account')" id="mnav-account"><span class="icon">⚙</span><span class="label">Account</span></button>
+  </div>
+</nav>
+
+<script>
+const user={name:'Maya',dob:'1992-09-14',sign:'♍ Virgo',lifePath:5,plan:'monthly'};
+
+const sampleReadings=[
+  {date:'2026-06-23',headline:'The truth you\'ve been circling finally becomes clear today.',horoscope:'Mercury\'s sharp angle to Neptune has been clouding your perception for days — today that fog lifts. A creative project you\'ve been second-guessing deserves a fresh look. Trust the original instinct.',numerologyTitle:'Personal Day 3 — Expression & Clarity',numerologyText:'A 3 day activates your voice. Ideas that have been forming quietly are ready to be spoken. Don\'t hold back in conversations today.',journalPrompt:'What would I say if I was certain it would be well received?',personalDay:3,moon:'🌔 Waxing Gibbous',journalEntry:''},
+  {date:'2026-06-22',headline:'A quiet day holds more transformation than a loud one ever could.',horoscope:'The sun\'s position in your 10th house draws attention to your public role — but today isn\'t about performance. Use this Sunday energy to organize and set the stage for a powerful week.',numerologyTitle:'Personal Day 2 — Partnership & Patience',numerologyText:'Two energy slows things down on purpose. Don\'t force decisions today. The right answer is already forming — it just needs another 24 hours.',journalPrompt:'Where am I rushing something that deserves more time?',personalDay:2,moon:'🌔 Waxing Gibbous',journalEntry:'I keep rushing the client proposal. Reading this made me realize I\'m doing it because I\'m anxious, not because there\'s actually a deadline. Going to give it until Wednesday.'},
+  {date:'2026-06-21',headline:'Your most important relationship right now is the one with your own voice.',horoscope:'Summer solstice energy amplifies everything — especially what you\'ve been quietly building. Virgo energy is at its most potent when it channels precision into creativity.',numerologyTitle:'Personal Day 1 — New Beginnings',numerologyText:'The 1 energy on the solstice is a rare alignment. Whatever you initiate today carries unusual staying power.',journalPrompt:'What have I been waiting for permission to begin?',personalDay:1,moon:'🌓 First Quarter',journalEntry:''}
+];
+
+function init(){
+  const hour=new Date().getHours();
+  const greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
+  document.getElementById('todayGreeting').textContent=`${greeting}, ${user.name}.`;
+  const today=new Date();
+  document.getElementById('todayDate').textContent=today.toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'});
+  document.getElementById('sidebarAvatar').textContent=user.name[0];
+  document.getElementById('sidebarName').textContent=user.name;
+  document.getElementById('sidebarSign').textContent=`${user.sign} · Life Path ${user.lifePath}`;
+  document.getElementById('sidebarPlan').textContent=user.plan==='premium'?'Premium':user.plan==='annual'?'Annual':'Monthly';
+  document.getElementById('acctName').textContent=user.name;
+  document.getElementById('acctPlan').textContent=user.plan.charAt(0).toUpperCase()+user.plan.slice(1);
+  loadTodayReading();loadArchive();loadJournalPage();
+}
+
+function loadTodayReading(){
+  const reading=sampleReadings[0];
+  document.getElementById('todayMeta').textContent=`${user.sign} · Life Path ${user.lifePath} · Personal Day ${reading.personalDay} · ${reading.moon}`;
+  document.getElementById('todayHeadline').textContent=reading.headline;
+  document.getElementById('todayBody').innerHTML=`
+    <div class="reading-section"><div class="section-label">Horoscope</div><p class="reading-text">${reading.horoscope}</p></div>
+    <div class="reading-section"><div class="section-label">Numerology</div>
+      <div class="num-row"><div class="num-badge">${reading.personalDay}</div><div class="num-text"><h4>${reading.numerologyTitle}</h4><p>${reading.numerologyText}</p></div></div>
+    </div>`;
+  document.getElementById('todayPrompt').innerHTML=`<div class="j-label">Reflect on this</div><p>${reading.journalPrompt}</p>`;
+  if(reading.journalEntry)document.getElementById('todayJournal').value=reading.journalEntry;
+}
+
+function loadArchive(){
+  const list=document.getElementById('archiveList');
+  list.innerHTML=sampleReadings.map((r,i)=>`
+    <div class="archive-item" onclick="openArchiveItem(${i})">
+      <div>
+        <div class="archive-date">${formatDate(r.date)}</div>
+        <div class="archive-headline">${r.headline}</div>
+        <div class="archive-tags"><span class="archive-tag">Personal Day ${r.personalDay}</span><span class="archive-tag">${r.moon}</span></div>
+      </div>
+      ${r.journalEntry?'<span class="archive-journal-indicator">✏ Journaled</span>':''}
+    </div>`).join('');
+}
+
+function loadJournalPage(){
+  const entries=sampleReadings.filter(r=>r.journalEntry);
+  const container=document.getElementById('journalEntries');
+  if(!entries.length){
+    container.innerHTML=`<div style="text-align:center;padding:48px;color:var(--muted);">
+      <div style="font-size:28px;margin-bottom:12px;color:var(--gold);">✎</div>
+      <p>No journal entries yet. Start writing on today's reading.</p></div>`;
+    return;
+  }
+  container.innerHTML=entries.map(r=>`
+    <div style="background:var(--deep);border:1px solid var(--border);border-radius:4px;padding:24px;">
+      <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">${formatDate(r.date)}</div>
+      <div style="font-family:'Fraunces',serif;font-size:16px;font-style:italic;color:var(--gold-light);margin-bottom:12px;padding-left:12px;border-left:2px solid var(--sage);">${r.journalPrompt}</div>
+      <p style="font-size:14px;font-weight:300;color:var(--cream);opacity:0.85;line-height:1.8;">${r.journalEntry}</p>
+    </div>`).join('');
+}
+
+function openArchiveItem(index){alert(`Full reading for ${formatDate(sampleReadings[index].date)} would open here.`);}
+
+function saveJournal(){
+  const entry=document.getElementById('todayJournal').value.trim();
+  if(!entry)return;
+  sampleReadings[0].journalEntry=entry;
+  document.getElementById('savedMsg').classList.add('visible');
+  setTimeout(()=>document.getElementById('savedMsg').classList.remove('visible'),2500);
+  loadJournalPage();loadArchive();
+}
+
+function showPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.mobile-nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  const navEl=document.getElementById('nav-'+page);if(navEl)navEl.classList.add('active');
+  const mnavEl=document.getElementById('mnav-'+page);if(mnavEl)mnavEl.classList.add('active');
+}
+
+function formatDate(dateStr){
+  const d=new Date(dateStr+'T12:00:00');
+  return d.toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+}
+
+init();
+</script>
+</body>
+</html>
