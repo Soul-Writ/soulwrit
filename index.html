@@ -478,7 +478,9 @@
 function openModal(plan){document.getElementById('modalOverlay').classList.add('open');if(plan)selectPlan(plan);}
 function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
 function handleOverlayClick(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+let selectedPlan='annual';
 function selectPlan(plan){
+  selectedPlan=plan;
   document.getElementById('planMonthly').classList.toggle('selected',plan==='monthly');
   document.getElementById('planAnnual').classList.toggle('selected',plan==='annual');
   document.getElementById('planPremium').classList.toggle('selected',plan==='premium');
@@ -504,23 +506,41 @@ function getLifePathNumber(dob){
   while(sum>9&&sum!==11&&sum!==22&&sum!==33){sum=sum.toString().split('').map(Number).reduce((a,b)=>a+b,0);}
   return sum;
 }
-function handleSignup(){
+async function handleSignup(){
   const name=document.getElementById('nameInput').value.trim();
   const dob=document.getElementById('dobInput').value;
   const email=document.getElementById('emailInput').value.trim();
   if(!name||!dob||!email){alert('Please fill in all fields to continue.');return;}
-  const sign=getZodiacSign(dob),lifePath=getLifePathNumber(dob);
-  document.querySelector('.modal').innerHTML=`
-    <div style="text-align:center;padding:16px 0;">
-      <div style="font-size:36px;margin-bottom:16px;color:var(--gold);">✦</div>
-      <h2 style="margin-bottom:12px;">Welcome, ${name}.</h2>
-      <p style="font-size:14.5px;color:var(--muted);margin-bottom:24px;">You're a <strong style="color:var(--gold-light)">${sign}</strong> with a Life Path of <strong style="color:var(--gold-light)">${lifePath}</strong>.</p>
-      <div style="background:var(--violet);border-radius:3px;padding:20px;margin-bottom:24px;text-align:left;">
-        <p style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Your first reading</p>
-        <p class="serif" style="font-style:italic;font-size:18px;color:var(--cream);">Arrives in your inbox tomorrow morning.</p>
-      </div>
-      <button onclick="closeModal()" style="padding:12px 32px;background:linear-gradient(135deg,var(--gold-light),var(--gold-deep));color:var(--ink);border:none;border-radius:2px;font-size:13px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;">Close</button>
-    </div>`;
+
+  const btn=document.querySelector('.btn-submit');
+  const originalText=btn.textContent;
+  btn.textContent='Loading...';
+  btn.disabled=true;
+
+  try{
+    const response=await fetch('/api/subscribe',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        name, email, dob,
+        plan:selectedPlan,
+        timezone:Intl.DateTimeFormat().resolvedOptions().timeZone
+      })
+    });
+    const data=await response.json();
+    if(data.checkoutUrl){
+      window.location.href=data.checkoutUrl;
+    }else{
+      alert(data.error||'Something went wrong. Please try again.');
+      btn.textContent=originalText;
+      btn.disabled=false;
+    }
+  }catch(err){
+    console.error(err);
+    alert('Something went wrong. Please try again.');
+    btn.textContent=originalText;
+    btn.disabled=false;
+  }
 }
 document.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeModal();});
 </script>
