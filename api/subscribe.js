@@ -69,7 +69,7 @@ module.exports = async (req, res) => {
         trial_period_days: 7,
         metadata: { name, dob, plan, timezone: timezone || 'Mountain Time' },
       },
-      success_url: `https://soulwrit.ca/welcome?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `https://soulwrit.ca/welcome.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://soulwrit.ca/?cancelled=true`,
       metadata: { name, dob, plan, timezone: timezone || 'Mountain Time' },
     });
