@@ -163,4 +163,4 @@ async function sendEmail(subscriber, reading, readingId) {
       <p style="font-size:10px;color:#F3D9A4;text-transform:uppercase;letter-spacing:0.14em;margin:0 0 10px;">✦ Premium · ${reading.moon_phase}</p>
       <p style="font-size:13px;color:#9C93B0;line-height:1.7;margin:0 0 14px;">${reading.moon_ritual}</p>
       <p style="font-size:12.5px;color:#F3D9A4;font-weight:bold;margin:0 0 4px;">Today's Compatibility</p>
-      <p style="font-size:13px;color:#9C93B0;line-height:1.7;margin:0;">${reading.comp
+      <p style="font-size:13px;color:#9C93B0;line-height:1.7;margin:0;">${reading.compatibility_note || ''}</p>
