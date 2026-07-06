@@ -4,5 +4,9 @@
       "path": "/api/cron/send-readings",
       "schedule": "0 13 * * *"
     }
+  ],
+  "rewrites": [
+    { "source": "/portal", "destination": "/portal.html" },
+    { "source": "/welcome", "destination": "/welcome.html" }
   ]
 }
