@@ -139,25 +139,25 @@ body{font-family:'Inter',sans-serif;background:var(--ink);color:var(--cream);min
 
     <div class="page active" id="page-today">
       <div class="page-header">
-        <h1 id="todayGreeting">Good morning, Maya.</h1>
+        <h1 id="todayGreeting">Good morning.</h1>
         <p id="todayDate">Your reading for today</p>
       </div>
 
       <div class="stats-row">
-        <div class="stat-card"><div class="stat-number">12</div><div class="stat-label">Day streak</div></div>
-        <div class="stat-card"><div class="stat-number">47</div><div class="stat-label">Readings read</div></div>
-        <div class="stat-card"><div class="stat-number">31</div><div class="stat-label">Journal entries</div></div>
+        <div class="stat-card"><div class="stat-number">—</div><div class="stat-label">Readings read</div></div>
+        <div class="stat-card"><div class="stat-number">—</div><div class="stat-label">Journal entries</div></div>
+        <div class="stat-card"><div class="stat-number">—</div><div class="stat-label">Days archived</div></div>
       </div>
 
       <div class="today-card">
         <div class="today-header">
-          <div class="today-meta" id="todayMeta">♍ Virgo · Life Path 5 · Personal Day 3 · 🌔 Waxing Gibbous</div>
+          <div class="today-meta" id="todayMeta">Loading...</div>
           <div class="today-headline" id="todayHeadline">Loading your reading...</div>
         </div>
         <div class="today-body" id="todayBody">
           <div style="text-align:center;padding:32px;color:var(--muted);">
             <div style="font-size:28px;margin-bottom:12px;color:var(--gold);">✦</div>
-            <p style="font-size:14px;">Generating your personalized reading...</p>
+            <p style="font-size:14px;">Loading your personalized reading...</p>
           </div>
         </div>
       </div>
@@ -188,19 +188,15 @@ body{font-family:'Inter',sans-serif;background:var(--ink);color:var(--cream);min
       <div class="account-grid">
         <div class="account-card">
           <h3>Profile</h3>
-          <div class="account-row"><span class="account-row-label">Name</span><span class="account-row-value" id="acctName">Maya</span></div>
-          <div class="account-row"><span class="account-row-label">Email</span><span class="account-row-value">maya@email.com</span></div>
-          <div class="account-row"><span class="account-row-label">Date of birth</span><span class="account-row-value">Sep 14, 1992</span></div>
-          <div class="account-row"><span class="account-row-label">Sun sign</span><span class="account-row-value">♍ Virgo</span></div>
-          <div class="account-row"><span class="account-row-label">Life path</span><span class="account-row-value">5</span></div>
+          <div class="account-row"><span class="account-row-label">Name</span><span class="account-row-value" id="acctName">—</span></div>
+          <div class="account-row"><span class="account-row-label">Sun sign</span><span class="account-row-value" id="acctSign">—</span></div>
+          <div class="account-row"><span class="account-row-label">Life path</span><span class="account-row-value" id="acctLifePath">—</span></div>
           <button class="btn-manage">Edit profile</button>
         </div>
 
         <div class="account-card">
           <h3>Subscription</h3>
-          <div class="account-row"><span class="account-row-label">Plan</span><span class="account-row-value" id="acctPlan">Monthly</span></div>
-          <div class="account-row"><span class="account-row-label">Price</span><span class="account-row-value">$4.99 / month</span></div>
-          <div class="account-row"><span class="account-row-label">Next billing</span><span class="account-row-value">Jul 23, 2026</span></div>
+          <div class="account-row"><span class="account-row-label">Plan</span><span class="account-row-value" id="acctPlan">—</span></div>
           <div class="account-row"><span class="account-row-label">Status</span><span class="account-row-value" style="color:var(--sage)">Active ✓</span></div>
           <button class="btn-manage plan-upgrade">Upgrade to Premium</button>
           <button class="btn-manage" style="margin-top:8px;">Manage billing</button>
@@ -212,15 +208,6 @@ body{font-family:'Inter',sans-serif;background:var(--ink);color:var(--cream);min
           <div class="account-row"><span class="account-row-label">Timezone</span><span class="account-row-value">Mountain Time</span></div>
           <div class="account-row"><span class="account-row-label">Format</span><span class="account-row-value">Email + Portal</span></div>
           <button class="btn-manage">Update preferences</button>
-        </div>
-
-        <div class="account-card">
-          <h3>Your numbers</h3>
-          <div class="account-row"><span class="account-row-label">Life path</span><span class="account-row-value">5 — The Freedom Seeker</span></div>
-          <div class="account-row"><span class="account-row-label">Expression</span><span class="account-row-value">7 — The Seeker</span></div>
-          <div class="account-row"><span class="account-row-label">Soul urge</span><span class="account-row-value">3 — The Creator</span></div>
-          <div class="account-row"><span class="account-row-label">Birthday</span><span class="account-row-value">5 — The Adapter</span></div>
-          <button class="btn-manage">View full chart</button>
         </div>
       </div>
       <p class="support-note">Need help? Email <a href="mailto:support@soulwrit.ca">support@soulwrit.ca</a> — we read every one.</p>
@@ -239,95 +226,138 @@ body{font-family:'Inter',sans-serif;background:var(--ink);color:var(--cream);min
 </nav>
 
 <script>
-const user={name:'Maya',dob:'1992-09-14',sign:'♍ Virgo',lifePath:5,plan:'monthly'};
+let currentData = null;
 
-const sampleReadings=[
-  {date:'2026-06-23',headline:'The truth you\'ve been circling finally becomes clear today.',horoscope:'Mercury\'s sharp angle to Neptune has been clouding your perception for days — today that fog lifts. A creative project you\'ve been second-guessing deserves a fresh look. Trust the original instinct.',numerologyTitle:'Personal Day 3 — Expression & Clarity',numerologyText:'A 3 day activates your voice. Ideas that have been forming quietly are ready to be spoken. Don\'t hold back in conversations today.',journalPrompt:'What would I say if I was certain it would be well received?',personalDay:3,moon:'🌔 Waxing Gibbous',journalEntry:''},
-  {date:'2026-06-22',headline:'A quiet day holds more transformation than a loud one ever could.',horoscope:'The sun\'s position in your 10th house draws attention to your public role — but today isn\'t about performance. Use this Sunday energy to organize and set the stage for a powerful week.',numerologyTitle:'Personal Day 2 — Partnership & Patience',numerologyText:'Two energy slows things down on purpose. Don\'t force decisions today. The right answer is already forming — it just needs another 24 hours.',journalPrompt:'Where am I rushing something that deserves more time?',personalDay:2,moon:'🌔 Waxing Gibbous',journalEntry:'I keep rushing the client proposal. Reading this made me realize I\'m doing it because I\'m anxious, not because there\'s actually a deadline. Going to give it until Wednesday.'},
-  {date:'2026-06-21',headline:'Your most important relationship right now is the one with your own voice.',horoscope:'Summer solstice energy amplifies everything — especially what you\'ve been quietly building. Virgo energy is at its most potent when it channels precision into creativity.',numerologyTitle:'Personal Day 1 — New Beginnings',numerologyText:'The 1 energy on the solstice is a rare alignment. Whatever you initiate today carries unusual staying power.',journalPrompt:'What have I been waiting for permission to begin?',personalDay:1,moon:'🌓 First Quarter',journalEntry:''}
-];
-
-function init(){
-  const hour=new Date().getHours();
-  const greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
-  document.getElementById('todayGreeting').textContent=`${greeting}, ${user.name}.`;
-  const today=new Date();
-  document.getElementById('todayDate').textContent=today.toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'});
-  document.getElementById('sidebarAvatar').textContent=user.name[0];
-  document.getElementById('sidebarName').textContent=user.name;
-  document.getElementById('sidebarSign').textContent=`${user.sign} · Life Path ${user.lifePath}`;
-  document.getElementById('sidebarPlan').textContent=user.plan==='premium'?'Premium':user.plan==='annual'?'Annual':'Monthly';
-  document.getElementById('acctName').textContent=user.name;
-  document.getElementById('acctPlan').textContent=user.plan.charAt(0).toUpperCase()+user.plan.slice(1);
-  loadTodayReading();loadArchive();loadJournalPage();
+function getRid() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('rid');
 }
 
-function loadTodayReading(){
-  const reading=sampleReadings[0];
-  document.getElementById('todayMeta').textContent=`${user.sign} · Life Path ${user.lifePath} · Personal Day ${reading.personalDay} · ${reading.moon}`;
-  document.getElementById('todayHeadline').textContent=reading.headline;
-  document.getElementById('todayBody').innerHTML=`
-    <div class="reading-section"><div class="section-label">Horoscope</div><p class="reading-text">${reading.horoscope}</p></div>
+async function init() {
+  const rid = getRid();
+  if (!rid) {
+    document.getElementById('todayHeadline').textContent = 'No reading found. Check your email link.';
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/portal-data?rid=${rid}`);
+    if (!res.ok) throw new Error('Failed to load reading');
+    const data = await res.json();
+    currentData = data;
+    renderAll(data);
+  } catch (err) {
+    document.getElementById('todayHeadline').textContent = 'Could not load your reading. Please try again later.';
+    console.error(err);
+  }
+}
+
+function renderAll(data) {
+  const { subscriber, today, todayJournalEntry, archive, journalEntries, stats } = data;
+
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('todayGreeting').textContent = `${greeting}, ${subscriber.name}.`;
+
+  const todayDate = new Date(today.reading_date + 'T12:00:00');
+  document.getElementById('todayDate').textContent = todayDate.toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  document.getElementById('sidebarAvatar').textContent = subscriber.name[0].toUpperCase();
+  document.getElementById('sidebarName').textContent = subscriber.name;
+  document.getElementById('sidebarSign').textContent = `${subscriber.zodiac_sign} · Life Path ${subscriber.life_path_number}`;
+  document.getElementById('sidebarPlan').textContent = subscriber.plan === 'premium' ? 'Premium' : subscriber.plan === 'annual' ? 'Annual' : 'Monthly';
+
+  document.getElementById('acctName').textContent = subscriber.name;
+  document.getElementById('acctSign').textContent = subscriber.zodiac_sign;
+  document.getElementById('acctLifePath').textContent = subscriber.life_path_number;
+  document.getElementById('acctPlan').textContent = subscriber.plan.charAt(0).toUpperCase() + subscriber.plan.slice(1);
+
+  document.querySelector('.stats-row').innerHTML = `
+    <div class="stat-card"><div class="stat-number">${stats.readingsCount}</div><div class="stat-label">Readings read</div></div>
+    <div class="stat-card"><div class="stat-number">${stats.journalCount}</div><div class="stat-label">Journal entries</div></div>
+    <div class="stat-card"><div class="stat-number">${archive.length}</div><div class="stat-label">Days archived</div></div>
+  `;
+
+  document.getElementById('todayMeta').textContent = `${subscriber.zodiac_sign} · Life Path ${subscriber.life_path_number} · Personal Day ${today.personal_day} · ${today.moon_phase}`;
+  document.getElementById('todayHeadline').textContent = today.headline;
+  document.getElementById('todayBody').innerHTML = `
+    <div class="reading-section"><div class="section-label">Horoscope</div><p class="reading-text">${today.horoscope}</p></div>
     <div class="reading-section"><div class="section-label">Numerology</div>
-      <div class="num-row"><div class="num-badge">${reading.personalDay}</div><div class="num-text"><h4>${reading.numerologyTitle}</h4><p>${reading.numerologyText}</p></div></div>
+      <div class="num-row"><div class="num-badge">${today.personal_day}</div><div class="num-text"><h4>${today.numerology_title}</h4><p>${today.numerology_text}</p></div></div>
     </div>`;
-  document.getElementById('todayPrompt').innerHTML=`<div class="j-label">Reflect on this</div><p>${reading.journalPrompt}</p>`;
-  if(reading.journalEntry)document.getElementById('todayJournal').value=reading.journalEntry;
+  document.getElementById('todayPrompt').innerHTML = `<div class="j-label">Reflect on this</div><p>${today.journal_prompt}</p>`;
+  if (todayJournalEntry) document.getElementById('todayJournal').value = todayJournalEntry;
+
+  loadArchive(archive);
+  loadJournalPage(journalEntries);
 }
 
-function loadArchive(){
-  const list=document.getElementById('archiveList');
-  list.innerHTML=sampleReadings.map((r,i)=>`
-    <div class="archive-item" onclick="openArchiveItem(${i})">
+function loadArchive(archive) {
+  const list = document.getElementById('archiveList');
+  if (!archive.length) {
+    list.innerHTML = `<div style="text-align:center;padding:32px;color:var(--muted);">No readings yet.</div>`;
+    return;
+  }
+  list.innerHTML = archive.map(r => `
+    <div class="archive-item">
       <div>
-        <div class="archive-date">${formatDate(r.date)}</div>
+        <div class="archive-date">${formatDate(r.reading_date)}</div>
         <div class="archive-headline">${r.headline}</div>
-        <div class="archive-tags"><span class="archive-tag">Personal Day ${r.personalDay}</span><span class="archive-tag">${r.moon}</span></div>
+        <div class="archive-tags"><span class="archive-tag">Personal Day ${r.personal_day}</span><span class="archive-tag">${r.moon_phase}</span></div>
       </div>
-      ${r.journalEntry?'<span class="archive-journal-indicator">✏ Journaled</span>':''}
     </div>`).join('');
 }
 
-function loadJournalPage(){
-  const entries=sampleReadings.filter(r=>r.journalEntry);
-  const container=document.getElementById('journalEntries');
-  if(!entries.length){
-    container.innerHTML=`<div style="text-align:center;padding:48px;color:var(--muted);">
+function loadJournalPage(entries) {
+  const container = document.getElementById('journalEntries');
+  if (!entries.length) {
+    container.innerHTML = `<div style="text-align:center;padding:48px;color:var(--muted);">
       <div style="font-size:28px;margin-bottom:12px;color:var(--gold);">✎</div>
       <p>No journal entries yet. Start writing on today's reading.</p></div>`;
     return;
   }
-  container.innerHTML=entries.map(r=>`
+  container.innerHTML = entries.map(e => `
     <div style="background:var(--deep);border:1px solid var(--border);border-radius:4px;padding:24px;">
-      <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">${formatDate(r.date)}</div>
-      <div style="font-family:'Fraunces',serif;font-size:16px;font-style:italic;color:var(--gold-light);margin-bottom:12px;padding-left:12px;border-left:2px solid var(--sage);">${r.journalPrompt}</div>
-      <p style="font-size:14px;font-weight:300;color:var(--cream);opacity:0.85;line-height:1.8;">${r.journalEntry}</p>
+      <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">${formatDate(e.reading_date)}</div>
+      <p style="font-size:14px;font-weight:300;color:var(--cream);opacity:0.85;line-height:1.8;">${e.entry_text}</p>
     </div>`).join('');
 }
 
-function openArchiveItem(index){alert(`Full reading for ${formatDate(sampleReadings[index].date)} would open here.`);}
+async function saveJournal() {
+  const entry = document.getElementById('todayJournal').value.trim();
+  if (!entry || !currentData) return;
 
-function saveJournal(){
-  const entry=document.getElementById('todayJournal').value.trim();
-  if(!entry)return;
-  sampleReadings[0].journalEntry=entry;
-  document.getElementById('savedMsg').classList.add('visible');
-  setTimeout(()=>document.getElementById('savedMsg').classList.remove('visible'),2500);
-  loadJournalPage();loadArchive();
+  try {
+    await fetch('/api/journal-save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        readingId: currentData.today.id,
+        subscriberId: currentData.today.subscriber_id,
+        readingDate: currentData.today.reading_date,
+        entryText: entry,
+      }),
+    });
+    document.getElementById('savedMsg').classList.add('visible');
+    setTimeout(() => document.getElementById('savedMsg').classList.remove('visible'), 2500);
+    await init();
+  } catch (err) {
+    console.error('Failed to save journal:', err);
+  }
 }
 
-function showPage(page){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.querySelectorAll('.mobile-nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  const navEl=document.getElementById('nav-'+page);if(navEl)navEl.classList.add('active');
-  const mnavEl=document.getElementById('mnav-'+page);if(mnavEl)mnavEl.classList.add('active');
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const navEl = document.getElementById('nav-' + page); if (navEl) navEl.classList.add('active');
+  const mnavEl = document.getElementById('mnav-' + page); if (mnavEl) mnavEl.classList.add('active');
 }
 
-function formatDate(dateStr){
-  const d=new Date(dateStr+'T12:00:00');
-  return d.toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 }
 
 init();
