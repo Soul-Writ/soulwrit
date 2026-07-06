@@ -164,3 +164,50 @@ async function sendEmail(subscriber, reading, readingId) {
       <p style="font-size:13px;color:#9C93B0;line-height:1.7;margin:0 0 14px;">${reading.moon_ritual}</p>
       <p style="font-size:12.5px;color:#F3D9A4;font-weight:bold;margin:0 0 4px;">Today's Compatibility</p>
       <p style="font-size:13px;color:#9C93B0;line-height:1.7;margin:0;">${reading.compatibility_note || ''}</p>
+ </div>` : '';
+
+  await resend.emails.send({
+    from: `Soulwrit <hello@soulwrit.ca>`,
+    to: subscriber.email,
+    subject: reading.email_subject || `Your ${subscriber.zodiac_sign} reading for today`,
+    html: `
+      <div style="font-family:Georgia,Arial,sans-serif;max-width:560px;margin:0 auto;background:#0B0912;padding:24px 10px;">
+        <p style="font-family:Georgia,serif;font-style:italic;font-size:20px;color:#F3D9A4;text-align:center;margin:0 0 20px;">Soulwrit</p>
+
+        <div style="background:linear-gradient(135deg,#241B38,#332648);border:1px solid rgba(212,175,106,0.18);border-radius:4px;padding:26px;margin-bottom:12px;">
+          <p style="font-size:11px;color:#F3D9A4;margin:0 0 12px;letter-spacing:0.04em;">${subscriber.zodiac_sign} · Life Path ${subscriber.life_path_number} · Personal Day ${reading.personal_day}</p>
+          <p style="font-family:Georgia,serif;font-size:22px;font-style:italic;color:#EDE8DC;line-height:1.35;margin:0;">${reading.headline}</p>
+        </div>
+
+        <div style="background:#141020;border:1px solid rgba(212,175,106,0.18);border-radius:4px;padding:26px;">
+          <p style="font-size:14px;color:#EDE8DC;margin:0 0 20px;">Good morning, <strong style="color:#F3D9A4;">${subscriber.name}</strong>.</p>
+
+          <p style="font-size:10px;color:#9C93B0;text-transform:uppercase;letter-spacing:0.16em;margin:0 0 10px;">Horoscope</p>
+          <p style="font-size:14px;color:#EDE8DC;opacity:0.85;line-height:1.8;margin:0 0 22px;">${reading.horoscope}</p>
+
+          <div style="background:#241B38;border-radius:2px;padding:16px;margin-bottom:22px;">
+            <p style="font-size:12.5px;color:#F3D9A4;font-weight:bold;margin:0 0 6px;">${reading.numerology_title}</p>
+            <p style="font-size:13px;color:#9C93B0;line-height:1.6;margin:0;">${reading.numerology_text}</p>
+          </div>
+
+          <div style="background:rgba(143,174,148,0.08);border-left:2px solid #8FAE94;border-radius:0 2px 2px 0;padding:16px 18px;margin-bottom:24px;">
+            <p style="font-size:10px;color:#8FAE94;text-transform:uppercase;letter-spacing:0.14em;margin:0 0 8px;">Journal Prompt</p>
+            <p style="font-family:Georgia,serif;font-size:17px;font-style:italic;color:#EDE8DC;margin:0;">${reading.journal_prompt}</p>
+          </div>
+
+          ${premiumBlock}
+
+          <div style="text-align:center;margin-top:22px;">
+            <a href="${portalLink}" style="display:inline-block;background:#D4AF6A;color:#0B0912;padding:12px 30px;border-radius:2px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;text-decoration:none;letter-spacing:0.04em;text-transform:uppercase;">Open your journal →</a>
+          </div>
+        </div>
+
+        <p style="text-align:center;font-size:11px;color:#6B6480;margin-top:20px;line-height:1.7;">
+          Soulwrit · Edmonton, AB<br/>
+          <a href="https://soulwrit.ca/unsubscribe?id=${subscriber.id}" style="color:#6B6480;">Unsubscribe</a> ·
+          <a href="https://soulwrit.ca/portal/account" style="color:#6B6480;">Manage preferences</a>
+        </p>
+      </div>
+    `,
+  });
+}
