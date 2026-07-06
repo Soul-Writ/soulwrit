@@ -1,14 +1,166 @@
-const authHeader = req.headers.authorization;
-const expected = `Bearer ${process.env.CRON_SECRET}`;
-if (authHeader !== expected) {
-  return res.status(401).json({
-    error: 'Unauthorized',
-    debug: {
-      receivedLength: authHeader ? authHeader.length : 0,
-      expectedLength: expected.length,
-      receivedLast5: authHeader ? authHeader.slice(-5) : null,
-      expectedLast5: expected.slice(-5),
-      cronSecretExists: !!process.env.CRON_SECRET,
+const { createClient } = require('@supabase/supabase-js');
+const { Resend } = require('resend');
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+module.exports = async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { data: subscribers, error } = await supabase
+    .from('subscribers')
+    .select('*')
+    .in('status', ['active', 'trialing']);
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  const today = new Date().toISOString().split('T')[0];
+  let sent = 0;
+  let failed = 0;
+  const errors = [];
+
+  for (const subscriber of subscribers || []) {
+    try {
+      const { data: existing } = await supabase
+        .from('readings')
+        .select('id, email_sent_at')
+        .eq('subscriber_id', subscriber.id)
+        .eq('reading_date', today)
+        .maybeSingle();
+
+      if (existing?.email_sent_at) continue;
+
+      const reading = await generateReading(subscriber, today);
+
+      const { data: savedReading, error: saveErr } = await supabase
+        .from('readings')
+        .upsert(
+          { subscriber_id: subscriber.id, reading_date: today, ...reading },
+          { onConflict: 'subscriber_id,reading_date' }
+        )
+        .select()
+        .single();
+
+      if (saveErr) throw saveErr;
+
+      await sendEmail(subscriber, reading, savedReading.id);
+
+      await supabase
+        .from('readings')
+        .update({ email_sent_at: new Date().toISOString() })
+        .eq('id', savedReading.id);
+
+      sent++;
+      await new Promise((r) => setTimeout(r, 200));
+    } catch (err) {
+      console.error(`Failed for ${subscriber.email}:`, err);
+      errors.push({ email: subscriber.email, error: err.message });
+      failed++;
     }
-  });
+  }
+
+  return res.status(200).json({ sent, failed, total: (subscribers || []).length, errors });
+};
+
+function getMoonPhase(dateStr) {
+  const date = new Date(dateStr);
+  const known = new Date('2000-01-06');
+  const diff = (date - known) / (1000 * 60 * 60 * 24);
+  const cycle = diff % 29.53;
+  if (cycle < 1.85) return 'New Moon';
+  if (cycle < 7.38) return 'Waxing Crescent';
+  if (cycle < 9.22) return 'First Quarter';
+  if (cycle < 14.77) return 'Waxing Gibbous';
+  if (cycle < 16.61) return 'Full Moon';
+  if (cycle < 22.15) return 'Waning Gibbous';
+  if (cycle < 23.99) return 'Last Quarter';
+  return 'Waning Crescent';
 }
+
+function getPersonalDay(dob, dateStr) {
+  const rd = new Date(dateStr);
+  const month = rd.getUTCMonth() + 1;
+  const day = rd.getUTCDate();
+  const year = rd.getUTCFullYear();
+  const digits = (month + '' + day + '' + year).split('').map(Number);
+  let sum = digits.reduce((a, b) => a + b, 0);
+  while (sum > 9 && ![11, 22].includes(sum)) {
+    sum = sum.toString().split('').map(Number).reduce((a, b) => a + b, 0);
+  }
+  return sum;
+}
+
+async function generateReading(subscriber, date) {
+  const isPremium = subscriber.plan === 'premium';
+  const moonPhase = getMoonPhase(date);
+  const personalDay = getPersonalDay(subscriber.dob, date);
+
+  const prompt = `Generate a personalized daily reading for ${subscriber.name}.
+Sign: ${subscriber.zodiac_sign}
+Life Path: ${subscriber.life_path_number}
+Personal Day: ${personalDay}
+Moon phase: ${moonPhase}
+Date: ${date}
+Plan: ${subscriber.plan}
+
+Return ONLY valid JSON:
+{
+  "headline": "compelling one-sentence insight, 15-20 words",
+  "horoscope": "3-4 sentences, personalized, no clichés",
+  "numerology_title": "4-6 word title for their personal day energy",
+  "numerology_text": "2-3 sentences, practical and specific",
+  "journal_prompt": "one focused thought-provoking question",
+  "email_subject": "compelling subject line 6-10 words"${isPremium ? `,
+  "moon_ritual": "2-3 sentence moon ritual for the ${moonPhase}",
+  "compatibility_note": "2 sentence compatibility insight"` : ''}
+}`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': process.env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 800,
+      system: 'You are Soulwrit — warm, perceptive, specific. Every soul carries a code, written in the stars and in numbers. Never use astrology clichés. Return only valid JSON, no preamble.',
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  const data = await response.json();
+  const text = (data.content?.[0]?.text || '').replace(/```json|```/g, '').trim();
+  const parsed = JSON.parse(text);
+
+  return {
+    headline: parsed.headline,
+    horoscope: parsed.horoscope,
+    numerology_title: parsed.numerology_title,
+    numerology_text: parsed.numerology_text,
+    journal_prompt: parsed.journal_prompt,
+    email_subject: parsed.email_subject,
+    personal_day: personalDay,
+    moon_phase: moonPhase,
+    moon_ritual: parsed.moon_ritual || null,
+    compatibility_note: parsed.compatibility_note || null,
+  };
+}
+
+async function sendEmail(subscriber, reading, readingId) {
+  const portalLink = `https://soulwrit.ca/portal?rid=${readingId}`;
+  const isPremium = subscriber.plan === 'premium';
+
+  const premiumBlock = isPremium && reading.moon_ritual ? `
+    <div style="background:#0B0912;border:1px solid rgba(212,175,106,0.25);border-radius:4px;padding:20px;margin-top:12px;">
+      <p style="font-size:10px;color:#F3D9A4;text-transform:uppercase;letter-spacing:0.14em;margin:0 0 10px;">✦ Premium · ${reading.moon_phase}</p>
+      <p style="font-size:13px;color:#9C93B0;line-height:1.7;margin:0 0 14px;">${reading.moon_ritual}</p>
+      <p style="font-size:12.5px;color:#F3D9A4;font-weight:bold;margin:0 0 4px;">Today's Compatibility</p>
+      <p style="font-size:13px;color:#9C93B0;line-height:1.7;margin:0;">${reading.comp
