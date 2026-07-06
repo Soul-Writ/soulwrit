@@ -9,8 +9,17 @@ const supabase = createClient(
 
 module.exports = async (req, res) => {
   const authHeader = req.headers.authorization;
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  const expected = `Bearer ${process.env.CRON_SECRET}`;
+  if (authHeader !== expected) {
+    return res.status(401).json({
+      error: 'Unauthorized',
+      debug: {
+        receivedLength: authHeader ? authHeader.length : 0,
+        expectedLength: expected.length,
+        receivedLast5: authHeader ? authHeader.slice(-5) : null,
+        expectedLast5: expected.slice(-5),
+      }
+    });
   }
 
   const { data: subscribers, error } = await supabase
