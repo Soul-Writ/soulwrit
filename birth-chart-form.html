@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Unlock Your Birth Chart — Soulwrit</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:#0B0912;color:#EDE8DC;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .card{max-width:480px;width:100%;background:#141020;border:1px solid rgba(212,175,106,0.18);border-radius:8px;padding:36px;}
+  h1{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:26px;color:#F3D9A4;margin-bottom:8px;}
+  p.sub{font-size:13.5px;color:#9C93B0;margin-bottom:28px;line-height:1.6;}
+  label{display:block;font-size:12px;color:#9C93B0;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;margin-top:18px;}
+  input{width:100%;padding:12px 14px;background:#0B0912;border:1px solid rgba(212,175,106,0.18);border-radius:4px;color:#EDE8DC;font-family:'Inter',sans-serif;font-size:14px;outline:none;}
+  input:focus{border-color:#D4AF6A;}
+  .hint{font-size:11.5px;color:#6B6480;margin-top:5px;}
+  button{width:100%;margin-top:28px;padding:14px;background:#D4AF6A;color:#0B0912;border:none;border-radius:4px;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;}
+  button:disabled{opacity:0.6;cursor:not-allowed;}
+  .msg{margin-top:16px;font-size:13px;text-align:center;}
+  .msg.error{color:#e07a7a;}
+  .msg.success{color:#8FAE94;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Unlock your birth chart</h1>
+    <p class="sub">Your chart maps exactly where every planet stood the moment you were born. We just need two more details to calculate it precisely.</p>
+
+    <form id="chartForm">
+      <label>Birth time</label>
+      <input type="time" id="birthTime" required />
+      <p class="hint">Check your birth certificate if unsure — even approximate is fine.</p>
+
+      <label>Birth city</label>
+      <input type="text" id="birthCity" placeholder="e.g. Edmonton, Canada" required />
+      <p class="hint">City and country, so we can locate you precisely.</p>
+
+      <button type="submit" id="submitBtn">Calculate my birth chart</button>
+    </form>
+    <p class="msg" id="msg"></p>
+  </div>
+
+<script>
+function getSubscriberId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('sid');
+}
+
+document.getElementById('chartForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const sid = getSubscriberId();
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('submitBtn');
+
+  if (!sid) {
+    msg.textContent = 'Missing subscriber link. Please use the link from your email or portal.';
+    msg.className = 'msg error';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Calculating your chart...';
+  msg.textContent = '';
+
+  try {
+    const res = await fetch('/api/birth-chart-submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subscriberId: sid,
+        birthTime: document.getElementById('birthTime').value,
+        birthCity: document.getElementById('birthCity').value,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Something went wrong');
+
+    msg.textContent = 'Your birth chart is ready! Redirecting to your portal...';
+    msg.className = 'msg success';
+    setTimeout(() => {
+      window.location.href = `/portal?sid=${sid}`;
+    }, 1800);
+  } catch (err) {
+    msg.textContent = err.message;
+    msg.className = 'msg error';
+    btn.disabled = false;
+    btn.textContent = 'Calculate my birth chart';
+  }
+});
+</script>
+</body>
+</html>
