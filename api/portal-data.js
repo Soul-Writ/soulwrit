@@ -5,11 +5,9 @@ const supabase = createClient(
 );
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
- const { rid, sid } = req.query;
+  const { rid, sid } = req.query;
   if (!rid && !sid) return res.status(400).json({ error: 'Missing rid or sid parameter' });
-
   let subscriber, reading;
-
   if (rid) {
     const { data: readingData, error: readingErr } = await supabase
       .from('readings')
@@ -18,7 +16,6 @@ module.exports = async (req, res) => {
       .single();
     if (readingErr || !readingData) return res.status(404).json({ error: 'Reading not found' });
     reading = readingData;
-
     const { data: subData, error: subErr } = await supabase
       .from('subscribers')
       .select('*')
@@ -34,7 +31,6 @@ module.exports = async (req, res) => {
       .single();
     if (subErr || !subData) return res.status(404).json({ error: 'Subscriber not found' });
     subscriber = subData;
-
     const { data: readingData } = await supabase
       .from('readings')
       .select('*')
@@ -43,7 +39,6 @@ module.exports = async (req, res) => {
       .limit(1)
       .maybeSingle();
     reading = readingData;
-
     if (!reading) return res.status(404).json({ error: 'No readings yet for this subscriber' });
   }
   const { data: archive } = await supabase
@@ -55,7 +50,7 @@ module.exports = async (req, res) => {
   const { data: journalEntry } = await supabase
     .from('journal_entries')
     .select('*')
-    .eq('reading_id', rid)
+    .eq('reading_id', reading.id)
     .maybeSingle();
   const { data: allJournalEntries } = await supabase
     .from('journal_entries')
