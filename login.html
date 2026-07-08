@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Log In — Soulwrit</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:#0B0912;color:#EDE8DC;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .card{max-width:420px;width:100%;background:#141020;border:1px solid rgba(212,175,106,0.18);border-radius:8px;padding:36px;}
+  h1{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:24px;color:#F3D9A4;margin-bottom:8px;text-align:center;}
+  p.sub{font-size:13.5px;color:#9C93B0;margin-bottom:28px;line-height:1.6;text-align:center;}
+  label{display:block;font-size:12px;color:#9C93B0;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+  input{width:100%;padding:12px 14px;background:#0B0912;border:1px solid rgba(212,175,106,0.18);border-radius:4px;color:#EDE8DC;font-family:'Inter',sans-serif;font-size:14px;outline:none;}
+  input:focus{border-color:#D4AF6A;}
+  button{width:100%;margin-top:20px;padding:14px;background:#D4AF6A;color:#0B0912;border:none;border-radius:4px;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;}
+  button:disabled{opacity:0.6;cursor:not-allowed;}
+  .msg{margin-top:16px;font-size:13px;text-align:center;color:#8FAE94;line-height:1.6;}
+  a.back{display:block;text-align:center;margin-top:20px;font-size:12.5px;color:#6B6480;text-decoration:none;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Welcome back</h1>
+    <p class="sub">Enter your email and we'll send you a fresh link to your portal — no password needed.</p>
+
+    <form id="loginForm">
+      <label>Email</label>
+      <input type="email" id="email" required placeholder="you@email.com" />
+      <button type="submit" id="submitBtn">Send my portal link</button>
+    </form>
+    <p class="msg" id="msg" style="display:none;"></p>
+    <a class="back" href="/">← Back to home</a>
+  </div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const msg = document.getElementById('msg');
+  const email = document.getElementById('email').value;
+
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  try {
+    await fetch('/api/login-request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+
+    document.getElementById('loginForm').style.display = 'none';
+    msg.style.display = 'block';
+    msg.textContent = `If ${email} is a Soulwrit subscriber, a portal link is on its way — check your inbox.`;
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Send my portal link';
+    msg.style.display = 'block';
+    msg.style.color = '#e07a7a';
+    msg.textContent = 'Something went wrong. Please try again.';
+  }
+});
+</script>
+</body>
+</html>
