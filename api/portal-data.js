@@ -56,13 +56,26 @@ module.exports = async (req, res) => {
     .eq('subscriber_id', subscriber.id)
     .not('email_sent_at', 'is', null);
 
-  return res.status(200).json({
+ return res.status(200).json({
     subscriber: {
+      id: subscriber.id,
       name: subscriber.name,
       zodiac_sign: subscriber.zodiac_sign,
       life_path_number: subscriber.life_path_number,
       plan: subscriber.plan,
+      has_birth_chart: !!subscriber.birth_chart_reading,
     },
+    today: reading,
+    todayJournalEntry: journalEntry ? journalEntry.entry_text : '',
+    archive: archive || [],
+    journalEntries: allJournalEntries || [],
+    stats: {
+      readingsCount: readingsCount || 0,
+      journalCount: (allJournalEntries || []).length,
+    },
+    birthChart: subscriber.birth_chart_reading ? JSON.parse(subscriber.birth_chart_reading) : null,
+  });
+};
     today: reading,
     todayJournalEntry: journalEntry ? journalEntry.entry_text : '',
     archive: archive || [],
