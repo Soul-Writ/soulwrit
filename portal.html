@@ -239,16 +239,22 @@ function getRid() {
   const params = new URLSearchParams(window.location.search);
   return params.get('rid');
 }
+function getSid() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('sid');
+}
 
 async function init() {
   const rid = getRid();
-  if (!rid) {
+  const sid = getSid();
+  if (!rid && !sid) {
     document.getElementById('todayHeadline').textContent = 'No reading found. Check your email link.';
     return;
   }
 
   try {
-    const res = await fetch(`/api/portal-data?rid=${rid}`);
+    const query = rid ? `rid=${rid}` : `sid=${sid}`;
+    const res = await fetch(`/api/portal-data?${query}`);
     if (!res.ok) throw new Error('Failed to load reading');
     const data = await res.json();
     currentData = data;
