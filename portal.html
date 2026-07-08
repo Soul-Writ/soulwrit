@@ -129,7 +129,8 @@ body{font-family:'Inter',sans-serif;background:var(--ink);color:var(--cream);min
     <p class="nav-section-label" style="margin-bottom:8px;">My Space</p>
     <button class="nav-item active" onclick="showPage('today')" id="nav-today"><span class="nav-icon">✦</span> Today's Reading</button>
     <button class="nav-item" onclick="showPage('journal')" id="nav-journal"><span class="nav-icon">✎</span> Journal</button>
-    <button class="nav-item" onclick="showPage('archive')" id="nav-archive"><span class="nav-icon">◐</span> Archive</button>
+   <button class="nav-item" onclick="showPage('archive')" id="nav-archive"><span class="nav-icon">◐</span> Archive</button>
+    <button class="nav-item" onclick="showPage('birthchart')" id="nav-birthchart"><span class="nav-icon">☉</span> Birth Chart</button>
     <div class="sidebar-bottom">
       <button class="nav-item" onclick="showPage('account')" id="nav-account"><span class="nav-icon">⚙</span> Account</button>
     </div>
@@ -183,6 +184,11 @@ body{font-family:'Inter',sans-serif;background:var(--ink);color:var(--cream);min
       <div class="archive-list" id="archiveList"></div>
     </div>
 
+    <div class="page" id="page-birthchart">
+      <div class="page-header"><h1>Your Cosmic Blueprint</h1><p>Your complete natal chart, calculated precisely</p></div>
+      <div id="birthChartContent"></div>
+    </div>
+
     <div class="page" id="page-account">
       <div class="page-header"><h1>Account</h1><p>Manage your subscription and preferences</p></div>
       <div class="account-grid">
@@ -220,7 +226,8 @@ body{font-family:'Inter',sans-serif;background:var(--ink);color:var(--cream);min
   <div class="mobile-nav-inner">
     <button class="mobile-nav-item active" onclick="showPage('today')" id="mnav-today"><span class="icon">✦</span><span class="label">Today</span></button>
     <button class="mobile-nav-item" onclick="showPage('journal')" id="mnav-journal"><span class="icon">✎</span><span class="label">Journal</span></button>
-    <button class="mobile-nav-item" onclick="showPage('archive')" id="mnav-archive"><span class="icon">◐</span><span class="label">Archive</span></button>
+   <button class="mobile-nav-item" onclick="showPage('archive')" id="mnav-archive"><span class="icon">◐</span><span class="label">Archive</span></button>
+    <button class="mobile-nav-item" onclick="showPage('birthchart')" id="mnav-birthchart"><span class="icon">☉</span><span class="label">Chart</span></button>
     <button class="mobile-nav-item" onclick="showPage('account')" id="mnav-account"><span class="icon">⚙</span><span class="label">Account</span></button>
   </div>
 </nav>
@@ -290,6 +297,33 @@ function renderAll(data) {
 
   loadArchive(archive);
   loadJournalPage(journalEntries);
+  renderBirthChart(subscriber, data.birthChart);
+}
+function renderBirthChart(subscriber, birthChart) {
+  const container = document.getElementById('birthChartContent');
+  if (birthChart) {
+    container.innerHTML = `
+      <div class="today-card">
+        <div class="today-header">
+          <div class="today-headline">${birthChart.title}</div>
+        </div>
+        <div class="today-body">
+          <div class="reading-section"><div class="section-label">Overview</div><p class="reading-text">${birthChart.overview}</p></div>
+          <div class="reading-section"><div class="section-label">Sun · Moon · Rising</div><p class="reading-text">${birthChart.sun_moon_rising}</p></div>
+          <div class="reading-section"><div class="section-label">Key Placements</div><p class="reading-text">${birthChart.key_placements}</p></div>
+          <div class="reading-section"><div class="section-label">Your Growth Edge</div><p class="reading-text">${birthChart.growth_edge}</p></div>
+        </div>
+      </div>`;
+  } else {
+    container.innerHTML = `
+      <div class="today-card">
+        <div style="padding:40px;text-align:center;">
+          <div style="font-size:32px;margin-bottom:16px;color:var(--gold);">☉</div>
+          <p style="font-size:14px;color:var(--muted);margin-bottom:20px;">Unlock your full natal chart — exact planetary positions calculated from your birth date, time, and place.</p>
+          <a href="/birth-chart-form?sid=${subscriber.id}" style="display:inline-block;background:var(--gold);color:var(--ink);padding:12px 28px;border-radius:2px;font-weight:700;text-decoration:none;font-size:13px;text-transform:uppercase;letter-spacing:0.04em;">Unlock My Birth Chart</a>
+        </div>
+      </div>`;
+  }
 }
 
 function loadArchive(archive) {
