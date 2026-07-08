@@ -5,23 +5,46 @@ const supabase = createClient(
 );
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  const { rid } = req.query;
-  if (!rid) return res.status(400).json({ error: 'Missing rid parameter' });
-  const { data: reading, error: readingErr } = await supabase
-    .from('readings')
-    .select('*')
-    .eq('id', rid)
-    .single();
-  if (readingErr || !reading) {
-    return res.status(404).json({ error: 'Reading not found' });
-  }
-  const { data: subscriber, error: subErr } = await supabase
-    .from('subscribers')
-    .select('*')
-    .eq('id', reading.subscriber_id)
-    .single();
-  if (subErr || !subscriber) {
-    return res.status(404).json({ error: 'Subscriber not found' });
+ const { rid, sid } = req.query;
+  if (!rid && !sid) return res.status(400).json({ error: 'Missing rid or sid parameter' });
+
+  let subscriber, reading;
+
+  if (rid) {
+    const { data: readingData, error: readingErr } = await supabase
+      .from('readings')
+      .select('*')
+      .eq('id', rid)
+      .single();
+    if (readingErr || !readingData) return res.status(404).json({ error: 'Reading not found' });
+    reading = readingData;
+
+    const { data: subData, error: subErr } = await supabase
+      .from('subscribers')
+      .select('*')
+      .eq('id', reading.subscriber_id)
+      .single();
+    if (subErr || !subData) return res.status(404).json({ error: 'Subscriber not found' });
+    subscriber = subData;
+  } else {
+    const { data: subData, error: subErr } = await supabase
+      .from('subscribers')
+      .select('*')
+      .eq('id', sid)
+      .single();
+    if (subErr || !subData) return res.status(404).json({ error: 'Subscriber not found' });
+    subscriber = subData;
+
+    const { data: readingData } = await supabase
+      .from('readings')
+      .select('*')
+      .eq('subscriber_id', subscriber.id)
+      .order('reading_date', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    reading = readingData;
+
+    if (!reading) return res.status(404).json({ error: 'No readings yet for this subscriber' });
   }
   const { data: archive } = await supabase
     .from('readings')
