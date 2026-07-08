@@ -66,14 +66,16 @@ module.exports = async (req, res) => {
           longitude: lng,
           latitude: lat,
           timezone,
+          city: birthCity,
+          nation: 'XX',
         },
       }),
     });
 
     const chartData = await chartRes.json();
     if (!chartRes.ok || !chartData.context) {
-      console.error('Astrologer API error:', chartData);
-      return res.status(500).json({ error: 'Could not calculate birth chart. Please try again.' });
+      console.error('Astrologer API error:', JSON.stringify(chartData));
+      return res.status(500).json({ error: 'Astrologer API error: ' + JSON.stringify(chartData.errors || chartData) });
     }
 
     // Step 5: Generate AI interpretation from the chart context
