@@ -299,11 +299,27 @@ function renderAll(data) {
 
   document.getElementById('todayMeta').textContent = `${subscriber.zodiac_sign} · Life Path ${subscriber.life_path_number} · Personal Day ${today.personal_day} · ${today.moon_phase}`;
   document.getElementById('todayHeadline').textContent = today.headline;
+ const premiumHtml = today.moon_ritual ? `
+    <div style="background:var(--ink);border:1px solid rgba(212,175,106,0.25);border-radius:4px;padding:20px;margin-top:12px;">
+      <p style="font-size:10px;color:var(--gold-light);text-transform:uppercase;letter-spacing:0.14em;margin:0 0 10px;">✦ Premium · ${today.moon_phase}</p>
+      <p style="font-size:13px;color:var(--muted);line-height:1.7;margin:0 0 14px;">${today.moon_ritual}</p>
+      <p style="font-size:12.5px;color:var(--gold-light);font-weight:bold;margin:0 0 4px;">Today's Compatibility</p>
+      <p style="font-size:13px;color:var(--muted);line-height:1.7;margin:0;">${today.compatibility_note || ''}</p>
+    </div>` : '';
+
+  const cosmicPlusHtml = today.cosmic_plus_insight ? `
+    <div style="background:linear-gradient(135deg,var(--violet),var(--violet-light));border:1px solid rgba(212,175,106,0.25);border-radius:4px;padding:20px;margin-top:12px;">
+      <p style="font-size:10px;color:var(--gold-light);text-transform:uppercase;letter-spacing:0.14em;margin:0 0 10px;">✦ Cosmic Plus</p>
+      <p style="font-size:13px;color:var(--muted);line-height:1.7;margin:0;">${today.cosmic_plus_insight}</p>
+    </div>` : '';
+
   document.getElementById('todayBody').innerHTML = `
     <div class="reading-section"><div class="section-label">Horoscope</div><p class="reading-text">${today.horoscope}</p></div>
     <div class="reading-section"><div class="section-label">Numerology</div>
       <div class="num-row"><div class="num-badge">${today.personal_day}</div><div class="num-text"><h4>${today.numerology_title}</h4><p>${today.numerology_text}</p></div></div>
-    </div>`;
+    </div>
+    ${premiumHtml}
+    ${cosmicPlusHtml}`;
   document.getElementById('todayPrompt').innerHTML = `<div class="j-label">Reflect on this</div><p>${today.journal_prompt}</p>`;
   if (todayJournalEntry) document.getElementById('todayJournal').value = todayJournalEntry;
 
@@ -344,14 +360,16 @@ function loadArchive(archive) {
     list.innerHTML = `<div style="text-align:center;padding:32px;color:var(--muted);">No readings yet.</div>`;
     return;
   }
-  list.innerHTML = archive.map(r => `
+ list.innerHTML = archive.map(r => `
+    <a href="/portal?rid=${r.id}" style="text-decoration:none;">
     <div class="archive-item">
       <div>
         <div class="archive-date">${formatDate(r.reading_date)}</div>
         <div class="archive-headline">${r.headline}</div>
         <div class="archive-tags"><span class="archive-tag">Personal Day ${r.personal_day}</span><span class="archive-tag">${r.moon_phase}</span></div>
       </div>
-    </div>`).join('');
+    </div>
+    </a>`).join('');
 }
 
 function loadJournalPage(entries) {
