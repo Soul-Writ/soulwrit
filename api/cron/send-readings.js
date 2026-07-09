@@ -9,17 +9,8 @@ const supabase = createClient(
 
 module.exports = async (req, res) => {
   const authHeader = req.headers.authorization;
-  const expected = `Bearer ${process.env.CRON_SECRET}`;
-  if (authHeader !== expected) {
-    return res.status(401).json({
-      error: 'Unauthorized',
-      debug: {
-        receivedLength: authHeader ? authHeader.length : 0,
-        expectedLength: expected.length,
-        receivedLast5: authHeader ? authHeader.slice(-5) : null,
-        expectedLast5: expected.slice(-5),
-      }
-    });
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   const { data: subscribers, error } = await supabase
@@ -107,6 +98,7 @@ function getPersonalDay(dob, dateStr) {
 
 async function generateReading(subscriber, date) {
   const isPremium = subscriber.plan === 'premium';
+  const hasCosmicPlus = subscriber.has_cosmic_plus;
   const moonPhase = getMoonPhase(date);
   const personalDay = getPersonalDay(subscriber.dob, date);
 
@@ -116,7 +108,8 @@ Life Path: ${subscriber.life_path_number}
 Personal Day: ${personalDay}
 Moon phase: ${moonPhase}
 Date: ${date}
-Plan: ${subscriber.plan}
+Plan: ${subscriber.plan}${hasCosmicPlus ? `
+Chinese Zodiac: ${subscriber.chinese_zodiac}` : ''}
 
 Return ONLY valid JSON:
 {
@@ -127,7 +120,8 @@ Return ONLY valid JSON:
   "journal_prompt": "one focused thought-provoking question",
   "email_subject": "compelling subject line 6-10 words"${isPremium ? `,
   "moon_ritual": "2-3 sentence moon ritual for the ${moonPhase}",
-  "compatibility_note": "2 sentence compatibility insight"` : ''}
+  "compatibility_note": "2 sentence compatibility insight"` : ''}${hasCosmicPlus ? `,
+  "cosmic_plus_insight": "2-3 sentences weaving together their Western sign (${subscriber.zodiac_sign}) and Chinese zodiac (${subscriber.chinese_zodiac}) into one cohesive insight for today"` : ''}
 }`;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -139,7 +133,7 @@ Return ONLY valid JSON:
     },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 800,
+      max_tokens: 900,
       system: 'You are Soulwrit — warm, perceptive, specific. Every soul carries a code, written in the stars and in numbers. Never use astrology clichés. Return only valid JSON, no preamble.',
       messages: [{ role: 'user', content: prompt }],
     }),
@@ -160,12 +154,14 @@ Return ONLY valid JSON:
     moon_phase: moonPhase,
     moon_ritual: parsed.moon_ritual || null,
     compatibility_note: parsed.compatibility_note || null,
+    cosmic_plus_insight: parsed.cosmic_plus_insight || null,
   };
 }
 
 async function sendEmail(subscriber, reading, readingId) {
   const portalLink = `https://soulwrit.ca/portal?rid=${readingId}`;
   const isPremium = subscriber.plan === 'premium';
+  const hasCosmicPlus = subscriber.has_cosmic_plus;
 
   const premiumBlock = isPremium && reading.moon_ritual ? `
     <div style="background:#0B0912;border:1px solid rgba(212,175,106,0.25);border-radius:4px;padding:20px;margin-top:12px;">
@@ -173,7 +169,13 @@ async function sendEmail(subscriber, reading, readingId) {
       <p style="font-size:13px;color:#9C93B0;line-height:1.7;margin:0 0 14px;">${reading.moon_ritual}</p>
       <p style="font-size:12.5px;color:#F3D9A4;font-weight:bold;margin:0 0 4px;">Today's Compatibility</p>
       <p style="font-size:13px;color:#9C93B0;line-height:1.7;margin:0;">${reading.compatibility_note || ''}</p>
- </div>` : '';
+    </div>` : '';
+
+  const cosmicPlusBlock = hasCosmicPlus && reading.cosmic_plus_insight ? `
+    <div style="background:linear-gradient(135deg,#241B38,#332648);border:1px solid rgba(212,175,106,0.25);border-radius:4px;padding:20px;margin-top:12px;">
+      <p style="font-size:10px;color:#F3D9A4;text-transform:uppercase;letter-spacing:0.14em;margin:0 0 10px;">✦ Cosmic Plus · ${subscriber.chinese_zodiac}</p>
+      <p style="font-size:13px;color:#9C93B0;line-height:1.7;margin:0;">${reading.cosmic_plus_insight}</p>
+    </div>` : '';
 
   await resend.emails.send({
     from: `Soulwrit <hello@soulwrit.ca>`,
@@ -205,6 +207,7 @@ async function sendEmail(subscriber, reading, readingId) {
           </div>
 
           ${premiumBlock}
+          ${cosmicPlusBlock}
 
           <div style="text-align:center;margin-top:22px;">
             <a href="${portalLink}" style="display:inline-block;background:#D4AF6A;color:#0B0912;padding:12px 30px;border-radius:2px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;text-decoration:none;letter-spacing:0.04em;text-transform:uppercase;">Open your journal →</a>
