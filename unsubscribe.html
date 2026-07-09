@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Unsubscribe — Soulwrit</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:#0B0912;color:#EDE8DC;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .card{max-width:440px;width:100%;background:#141020;border:1px solid rgba(212,175,106,0.18);border-radius:8px;padding:40px;text-align:center;}
+  h1{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:24px;color:#F3D9A4;margin-bottom:14px;}
+  p{font-size:14px;color:#9C93B0;line-height:1.7;margin-bottom:24px;}
+  button{padding:13px 32px;background:#D4AF6A;color:#0B0912;border:none;border-radius:4px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;}
+  button:disabled{opacity:0.6;cursor:not-allowed;}
+  a{color:#6B6480;text-decoration:none;font-size:12.5px;display:block;margin-top:20px;}
+  .msg{margin-top:20px;font-size:13.5px;color:#8FAE94;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div id="confirmState">
+      <h1>We're sorry to see you go</h1>
+      <p>This will cancel your Soulwrit subscription immediately. You won't receive future readings, and any active billing will stop.</p>
+      <button id="confirmBtn" onclick="confirmUnsubscribe()">Confirm unsubscribe</button>
+      <a href="/">Actually, take me back</a>
+    </div>
+    <div id="doneState" style="display:none;">
+      <h1>You're unsubscribed</h1>
+      <p id="doneMsg">Your subscription has been cancelled. We hope our paths cross again.</p>
+      <a href="/">Return to Soulwrit</a>
+    </div>
+  </div>
+
+<script>
+function getSubscriberId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('id');
+}
+
+async function confirmUnsubscribe() {
+  const id = getSubscriberId();
+  const btn = document.getElementById('confirmBtn');
+  if (!id) {
+    alert('Missing subscriber link. Please use the link from your email.');
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+
+  try {
+    const res = await fetch('/api/unsubscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subscriberId: id }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('confirmState').style.display = 'none';
+      document.getElementById('doneState').style.display = 'block';
+    } else {
+      alert(data.error || 'Something went wrong.');
+      btn.disabled = false;
+      btn.textContent = 'Confirm unsubscribe';
+    }
+  } catch (err) {
+    alert('Something went wrong. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Confirm unsubscribe';
+  }
+}
+</script>
+</body>
+</html>
