@@ -9,6 +9,8 @@
     { "source": "/portal", "destination": "/portal.html" },
     { "source": "/welcome", "destination": "/welcome.html" },
     { "source": "/birth-chart-form", "destination": "/birth-chart-form.html" },
-    { "source": "/login", "destination": "/login.html" }
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/unsubscribe", "destination": "/unsubscribe.html" },
+    { "source": "/terms", "destination": "/terms.html" }
   ]
 }
