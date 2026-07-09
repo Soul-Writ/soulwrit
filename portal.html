@@ -129,7 +129,7 @@ body{font-family:'Inter',sans-serif;background:var(--ink);color:var(--cream);min
     <p class="nav-section-label" style="margin-bottom:8px;">My Space</p>
     <button class="nav-item active" onclick="showPage('today')" id="nav-today"><span class="nav-icon">✦</span> Today's Reading</button>
     <button class="nav-item" onclick="showPage('journal')" id="nav-journal"><span class="nav-icon">✎</span> Journal</button>
-   <button class="nav-item" onclick="showPage('archive')" id="nav-archive"><span class="nav-icon">◐</span> Archive</button>
+    <button class="nav-item" onclick="showPage('archive')" id="nav-archive"><span class="nav-icon">◐</span> Archive</button>
     <button class="nav-item" onclick="showPage('birthchart')" id="nav-birthchart"><span class="nav-icon">☉</span> Birth Chart</button>
     <div class="sidebar-bottom">
       <button class="nav-item" onclick="showPage('account')" id="nav-account"><span class="nav-icon">⚙</span> Account</button>
@@ -208,6 +208,12 @@ body{font-family:'Inter',sans-serif;background:var(--ink);color:var(--cream);min
           <button class="btn-manage" style="margin-top:8px;">Manage billing</button>
         </div>
 
+        <div class="account-card" id="cosmicPlusCard">
+          <h3>✦ Cosmic Plus</h3>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;">Unlock your Chinese zodiac sign and personalized color theming throughout your portal and emails.</p>
+          <button class="btn-manage plan-upgrade" onclick="addCosmicPlus()">Add for $1.99/mo</button>
+        </div>
+
         <div class="account-card">
           <h3>Delivery preferences</h3>
           <div class="account-row"><span class="account-row-label">Delivery time</span><span class="account-row-value">7:00 AM</span></div>
@@ -226,7 +232,7 @@ body{font-family:'Inter',sans-serif;background:var(--ink);color:var(--cream);min
   <div class="mobile-nav-inner">
     <button class="mobile-nav-item active" onclick="showPage('today')" id="mnav-today"><span class="icon">✦</span><span class="label">Today</span></button>
     <button class="mobile-nav-item" onclick="showPage('journal')" id="mnav-journal"><span class="icon">✎</span><span class="label">Journal</span></button>
-   <button class="mobile-nav-item" onclick="showPage('archive')" id="mnav-archive"><span class="icon">◐</span><span class="label">Archive</span></button>
+    <button class="mobile-nav-item" onclick="showPage('archive')" id="mnav-archive"><span class="icon">◐</span><span class="label">Archive</span></button>
     <button class="mobile-nav-item" onclick="showPage('birthchart')" id="mnav-birthchart"><span class="icon">☉</span><span class="label">Chart</span></button>
     <button class="mobile-nav-item" onclick="showPage('account')" id="mnav-account"><span class="icon">⚙</span><span class="label">Account</span></button>
   </div>
@@ -386,6 +392,33 @@ async function saveJournal() {
   }
 }
 
+async function addCosmicPlus() {
+  if (!currentData) return;
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+  try {
+    const res = await fetch('/api/add-cosmic-plus', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subscriberId: currentData.subscriber.id }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(`Cosmic Plus added! Your Chinese zodiac: ${data.chineseZodiac}`);
+      await init();
+    } else {
+      alert(data.error || 'Something went wrong.');
+      btn.disabled = false;
+      btn.textContent = 'Add for $1.99/mo';
+    }
+  } catch (err) {
+    alert('Something went wrong.');
+    btn.disabled = false;
+    btn.textContent = 'Add for $1.99/mo';
+  }
+}
+
 function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -403,4 +436,4 @@ function formatDate(dateStr) {
 init();
 </script>
 </body>
-</html>
+</html></document_content></document>
