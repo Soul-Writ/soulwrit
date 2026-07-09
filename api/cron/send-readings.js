@@ -81,6 +81,16 @@ function getMoonPhase(dateStr) {
   if (cycle < 22.15) return 'Waning Gibbous';
   if (cycle < 23.99) return 'Last Quarter';
   return 'Waning Crescent';
+  
+}
+function getSignColor(sign) {
+  const colors = {
+    'Aries': '#E8735C', 'Leo': '#E8A23C', 'Sagittarius': '#D4AF6A',
+    'Taurus': '#8FAE94', 'Virgo': '#7A9B7E', 'Capricorn': '#5C7A6B',
+    'Gemini': '#E8C15C', 'Libra': '#C9A9D4', 'Aquarius': '#6BB8C4',
+    'Cancer': '#B0A4D4', 'Scorpio': '#8A5C7A', 'Pisces': '#7A94C4',
+  };
+  return colors[sign] || '#D4AF6A';
 }
 
 function getPersonalDay(dob, dateStr) {
