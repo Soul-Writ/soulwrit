@@ -7,14 +7,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-function getChineseZodiac(dob) {
-  const year = new Date(dob).getUTCFullYear();
-  const animals = ['Rat', 'Ox', 'Tiger', 'Rabbit', 'Dragon', 'Snake', 'Horse', 'Goat', 'Monkey', 'Rooster', 'Dog', 'Pig'];
-  const elements = ['Metal', 'Water', 'Wood', 'Fire', 'Earth'];
-  const animal = animals[(year - 4) % 12];
-  const element = elements[Math.floor(((year - 4) % 10) / 2)];
-  return `${element} ${animal}`;
-}
 function getZodiacSign(dob) {
   const date = new Date(dob);
   const month = date.getUTCMonth() + 1;
